@@ -1,52 +1,52 @@
 # Memory Intermediate Representation (MIR) layer
 
-Up to this point, all allocations are _abstract_ (see [TODO: LINK to IR reference]) (not counting allocations explicitly defined by the user TODO: example).
-In this layer, these _abstract_ allocations are made concrete by the usage of the stack. In order to make the best possible usage of the native AVM stack [TODO: LINK to research] is used.
+Up to this point, all allocations are _abstract_ (see the [relevant nodes in IR](IR.md#full-models-reference)) (not counting allocations explicitly defined by the user TODO: example).
+In this layer, these _abstract_ allocations are made concrete by simulation and analysis of stack usage. 
+<!-- In order to make the best possible usage of the native AVM stack [TODO: LINK to research] is used. -->
 
-The general idea of this layer is the introduction of 3 logical stack regions, according to their relation to the overall control flow structure of the program./
+The general idea of this layer is the introduction of 3 logical stack regions, according to their relation to the overall control flow structure of the program.
+
 The `l-stack` is, conceptually, the stack region used for intra-block allocations.\
 The `x-stack` is the stack region used for inter-block allocations.\
-Finally, the `f-stack` is used for the frame region (explicit in the AVM). It is created in the entry block and maintained constant throughout the rest of basic blocks.
-Having this region preserved in the stack is useful for most allocations that don't fit any of the other two regions.
-TODO: improve explanation of f-stack
+Finally, the `f-stack` is used for the frame region ([explicit in the AVM](TODO_link_to_specs_AVM_section)). It is created in the entry block for each subroutine and maintained constant throughout the rest of basic blocks.
 
-# main building algorithm
+The following document attempts an exhaustive explanation of lowering from IR to MIR, stack allocation building, optimizations and validations performed at this step up to the output representation, that will be the input of the following [TEAL](TEAL.md) layer.
+<!-- Having this region preserved in the stack is useful for most allocations that don't fit any of the other two regions.
+TODO: improve explanation of f-stack -->
+
+TODO: pseudocode
+# MIR main algorithm
+
 ```py
-def program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -> models.Program:
-   ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
-
-    mir_main = _lower_subroutine_to_mir(ctx, program_ir.main, is_main=True)
-    mir_subroutines = [
-        _lower_subroutine_to_mir(ctx, ir_sub, is_main=False) for ir_sub in program_ir.subroutines
-    ]
-    match program_ir.slot_allocation.strategy:
-        case SlotAllocationStrategy.none:
-            mir_allocation = None
-        case SlotAllocationStrategy.dynamic:
-            mir_allocation = _build_slot_allocation(program_ir)
-            mir_subroutines.append(build_new_slot_sub(mir_allocation.allocation_slot))
-        case unexpected:
-            typing.assert_never(unexpected)
-    result = models.Program(
-        kind=program_ir.kind,
-        main=mir_main,
-        subroutines=mir_subroutines,
-        avm_version=program_ir.avm_version,
-        slot_allocation=mir_allocation,
-    )
-    if ctx.options.output_memory_ir:
-        output_memory_ir(ctx, result, qualifier="build")
-    global_stack_allocation(ctx, result)
+#TODO: function prototype. Input=IRProgram: IR.Program, context. Output: MIR.Program
+    main = lower_main_to_mir(IRProgram.main)
+    for s in IRProgram.subroutines:
+        subroutines = [lower_subroutine_to_mir(s)]
+    if IRProgram.slot_allocation_strategy is dynamic:
+        slot_alloc = ...
+        subroutines.append(build_new_slot_sub(IRProgram)) #TODO: notation here for a single f call
+    result <= MIR.Program(IRProgram.kind, main, subroutines, slot_alloc)
+    result <= globalStackAllocation(result)
     return result
 ```
-Each subroutine in the ir program is lowered, starting with main as a special case.
-Then for each subroutine, each basic block is lowered.
-Afterwards, in the case of `slot allocation strategy` set to `dynamic`, we build the slot allocation and append a special slot building subroutine.
-Finally, the `global stack allocation` is performed.
 
-There is a series of IR nodes that are unexpected at this stage and will thus fail upon attempted compilation:
-- Phi Nodes (TODO: link)
-- TODO: complete
+In the [building phase](#ir--mir-lowering), each subroutine in the IR [`Program`](IR.md#full-models-reference) input is lowered, starting with main as a special case.\
+Then each non-main subroutine is built.\
+At the end of the building process, and only in the case of `slot allocation strategy` set to `dynamic`, we build the slot allocation and append a special slot building subroutine at the end of the subroutine list.\
+
+Finally, the `global stack allocation` algorithm is performed, constructing each stack region according to the required optimization level, and materialising all `AbstractLoad` and `AbstractStore` operations in the process.\
+
+After this, we get the final output ready to continue down the pipeline to the [TEAL](TEAL.md) stage.
+
+# IR => MIR lowering
+
+>[!Warning]
+>There is a series of IR nodes that are unexpected at this stage and will thus fail upon attempted visitation:
+>- Phi Nodes (TODO: link). These should have been processed after getting out of SSA during [destructuring](IR.md#ssa-destructuring).
+>- TODO: complete
+
+## Slot allocation strategy
+TODO: slot allocation expl. goes here
 
 
 # The Stack visitor
@@ -54,9 +54,48 @@ The stack visitor is a visitor that processes ops and subsequently builds a stac
 
 TODO: explain
 
+# Global Stack Allocation
+TODO: pseudocode
+```python
+GlobalStackAllocation(Program P)
+    for Subroutine s in P: #note that this includes main as well as every other subroutine
+        if opt level is O0:
+            lstack(s)
+            fstack(s)
+        else:
+            lstack(s)
+            peepholeOptimizationPass(s)
+            xstack(s)
+            peepholeOptimizationPass(s)
+            fstack(s)
+            peepholeOptimizationPass(s)
+```
+<!-- 
+def global_stack_allocation(ctx: ProgramMIRContext, program: models.Program) -> None:
+    for desc, (method, min_opt_level) in {
+        "lstack": (l_stack_allocation, 0),
+        "lstack.opt": (peephole_optimization_single_pass, 1),
+        "xstack": (x_stack_allocation, 1),
+        "xstack.opt": (peephole_optimization_single_pass, 1),
+        "fstack": (f_stack_allocation, 0),
+        "fstack.opt": (peephole_optimization_single_pass, 1),
+    }.items():
+        if ctx.options.optimization_level < min_opt_level:
+            continue
+        for mir_sub in program.all_subroutines:
+            method(ctx, mir_sub)
+        if ctx.options.output_memory_ir:
+            output_memory_ir(ctx, program, qualifier=desc)
+    if ctx.options.output_memory_ir:
+        output_memory_ir(ctx, program, qualifier="") -->
+(...)
+After MIR building has taken place and slot allocations have been solved, global stack allocation is performed. This processing step performs several optimizations and builds L-, X- and F- stacks (according to optimization flags).\
+In the `O0` level, only L-Stack and F-Stack are built, and no optimization passes are performed.
+In any other optimization level (`O1` or `O2`), every stack region allocations are built in the order seen in the algorithm, which is the order in which the regions "stack" on top of each other in the final model of the Stack (note a pass of peephole optimizations is performed after each one).
 
-# The l-stack
+## The L-stack
 The L-stack allocations are built by applying [Koopman's algorithm](TODO:LINK).
+At a high level, this is the region of the stack responsible for intra-block allocation, and will attempt to materialize some abstract storage operations as [`LStackLoad`](#local-variable-l-stack-ops) and `LStackStore` ops.
 
 (TODO: pseudocode impl -very similar to python impl)
 
@@ -210,17 +249,80 @@ As an auxiliary way of collecting all of the information pertaining a block for 
 
 
 # The f-stack
+
 The f-stack is initialized in the entry block and remains constant throughout a whole subroutine.
 For f-stack building, we consider now a subroutine divided in (MIR) basic blocks.
 Now, consider the set of all variables referenced in this subroutine (i.e. all instances of `AbstractStore` and `AbstractLoad`), sorted by their local id.
 
-> [!NOTE] In case no variable defs or uses are found, that is, the whole subroutine has no AS or ALs, the F-stack will be empty.
+> [!NOTE] In case no variable defs or uses are found, that is, the whole subroutine has no instances of `AbstractStore` or `AbstractLoad`, the f-stack is empty and no attempt to build it is performed.
 
+In pseudocode:
+```python
+    for subroutine s:
+        vars <= collect all variables in s
+        if vars is empty:
+            return ()
+        block_0 = s.body[0]
+        first...
+        TODO: complete
+```
 
+```python
+def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine) -> None:
+    all_variables = _VariableCollector.collect(subroutine)
+    if not all_variables:
+        subroutine.pre_alloc = FStackPreAllocation.empty()
+        return
 
+    entry_block = subroutine.body[0]
+    first_store_ops = _get_lazy_fstack(entry_block)
+    unsorted_pre_allocate = [x for x in all_variables if x not in first_store_ops]
+    subroutine.pre_alloc = _get_pre_alloc(subroutine, unsorted_pre_allocate)
+    logger.debug(
+        f"{subroutine.signature.name} f-stack entry: {subroutine.pre_alloc.allocate_on_entry}"
+    )
+    logger.debug(f"{subroutine.signature.name} f-stack on first store: {list(first_store_ops)}")
 
-> Divergence from the original paper:
-> No usage of p-stack and e-stack
+    entry_block.f_stack_in = subroutine.pre_alloc.allocate_on_entry
+    entry_block.f_stack_out = [*entry_block.f_stack_in, *first_store_ops]
+    # f-stack is initialized in the entry block and doesn't change after that
+    for block in subroutine.body[1:]:
+        block.f_stack_in = block.f_stack_out = entry_block.f_stack_out
+
+    for block in subroutine.body:
+        stack = Stack.begin_block(subroutine, block)
+        for index, op in enumerate(block.mem_ops):
+            match op:
+                case mir.AbstractStore() as store:
+                    insert = op in first_store_ops.values()
+                    if insert:
+                        assert block is entry_block
+                        depth = stack.xl_height - 1
+                    else:
+                        depth = stack.fxl_height - stack.f_stack.index(store.local_id) - 1
+
+                    block.mem_ops[index] = op = attrs_extend(
+                        mir.StoreFStack,
+                        store,
+                        depth=depth,
+                        frame_index=stack.fxl_height - depth - 1,
+                        insert=insert,
+                    )
+                case mir.AbstractLoad() as load:
+                    depth = stack.fxl_height - stack.f_stack.index(load.local_id) - 1
+                    block.mem_ops[index] = op = attrs_extend(
+                        mir.LoadFStack,
+                        load,
+                        depth=depth,
+                        frame_index=stack.fxl_height - depth - 1,
+                    )
+            op.accept(stack)
+        match block.terminator:
+            case mir.RetSub() as retsub:
+                block.terminator = attrs.evolve(
+                    retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
+                )
+```
 
 # Context
 The context object in this layer provides very limited functionality. It is solely a store of the IR program and a list of all subroutine names and their associated IR code.
@@ -229,22 +331,15 @@ The context object in this layer provides very limited functionality. It is sole
  <!--TODO: WHEN is that not the case? example -->
 
 
-## Lowering from (destructured) IR
-
-### Builder
-
-## Koopman's Algorithm
-
-## Bailey's Algorithm
-
-## Global stack allocator (not implemented)
-
-
 # Optimizations performed
+There is a single optimization function, a peephole optimizer with a window of size 2 (i.e. optimizing instruction pairs), however this optimization pass is performed after resolving allocation of each of the three regions (for `O1` and `O2` opt. levels). Note that `O0` opt. level performs no optimizations in this layer, and only allocates [L-stack](#the-l-stack) and [F-stack](#the-f-stack) (leaving the [X-stack](#the-x-stack) region empty).
+
+For the optimization pass, it's crucial to first perform a subroutine-wide variable lifetime analysis.
+
+## Variable lifetime analysis
 
 We say that a variable is _live_ if it holds a value that will/might be used in the future.
 (https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf)
-VLA (Variable Lifetime Analysis) is used throughout many of the optimizations performed.
 Consider now the following sets:
 
 `use[n]`: the set of variable uses in the node `n` of the control flow graph. A variable use is a right hand side appearence of a variable's identifier.
@@ -263,26 +358,56 @@ The sets satisfy the following two equations:
 
 The relevant nodes for this analysis are `AbstractStore` and `AbstractLoad`.
 
-
 ## Peephole optimizations
-We define a peephole window of size 2, meaning the peephole optimizer will consider _pairs_ of operations inside each basic block (see `MemoryBasicBlock` below).
-The optimizer attempts to:
-- eliminate redundant loads/stores
-- fold store=>load patterns
-- rename produced local IDs
-- remove unnecessary stores
-- replace dead stores with pops
-- remove load/store pairs that cancel out
+We define a peephole window of size 2, meaning the peephole optimizer will consider _pairs_ of operations inside each [basic block](#memorybasicblock).
+For all these, we consider a pair of ops. `(a, b)`.\
+The optimizer will perform the following passes in the order in which they are declared:
+
+<!-- TODO: all these are not independant. Should they be in one big optimization all together? -->
+### Eliminate redundant loads/stores
+
+```py
+# move local_ids to produces of previous op where possible
+    if (
+        isinstance(b, mir.StoreLStack | mir.StoreXStack | mir.StoreFStack)
+        and a.produces
+        and a.produces[-1] != b.local_id
+    ):
+        a = attrs.evolve(a, produces=(*a.produces[:-1], b.local_id))
+        return a, b
+```
+> [Reference implementation](TODO_LINK)
+
+Consider a case where the first element of the pair, `a`, is an op. that produces a non-empty list of `n` local ids `a.prod = [a_1, a_2, ..., a_n]` (`n > 0`). Now, assume the second element, `b`, is a *materialised* store operation (one of MIR.StoreLStack, MIR.StoreXStack or MIR.StoreFStack). Furthermore, consider that the target local id of `b` is such that `b.local_id != a_n`. In this case, we have an implicit aliasing of the local id `a_n` into `b.local_id`. We can thus get rid of `a_n` by modifying the products of `a` in place.\
+The resulting pair is then `(a', b)` where `a'.prod = [a_1, a_2, ..., b.local_id]`.
+
+TODO: illustrative example
+
+Note that, since this optimization is run after each stack region's allocation, each subsequent run unlocks new potential cases for `b`.
+
+### fold `store=>load` patterns
+
+
+### Rename produced local IDs
+
+### Remove unnecessary stores
+
+### Replace dead stores with pops
+
+### Remove load/store pairs that cancel out
 
 
 
 
 # Validations performed
+TODO: validations
 
-TODO: proofread (AI assisted)
+## F-Stack pre-allocation AVM Type
+The f-stack pre-allocation variables should all be either `uint64` or `bytes` typed. `any` AVM types will raise an error at this stage.
+TODO: link to where this validation happen and explain a bit better why this is
 
 # Full models reference
-In this section we provide the full set of nodes expressable in MIR.
+In this section we provide the [full set of nodes expressable in MIR](https://github.com/algorandfoundation/puya/blob/main/src/puya/mir/models.py).
 
 ## Top-Level Concepts
 
@@ -330,13 +455,18 @@ Abstract superclass for all memory load operations.
 
 ---
 
-## Local Variable (L-Stack) Ops
+## Abstract Storage Ops
+These ops. are the drivers of transformation in this compiler layer, as they will be replaced by specific region storage ops. as a result of the MIR processing stages (or removed by any of the optimization passes in between).
 
 ### **`AbstractStore`**
 Consumes stack top and stores into a local variable.
 
 ### **`AbstractLoad`**
 Loads a local variable by ID and pushes it onto the stack.
+
+---
+
+## Local Variable (L-Stack) Ops
 
 ### **`StoreLStack`**
 Stores a value into the L-stack at a given depth.
@@ -453,11 +583,14 @@ Full subroutine signature (parameters + return types).
 Determines which local variables must be preallocated in the F-stack.
 
 ### **`MemorySubroutine`**
-A subroutine in Memory IR:
-- id
-- signature
-- blocks
-- pre-allocation info
+A subroutine in Memory IR. It contains the following fields:
+- `id`: a unique string identifying this subroutine in the context of the whole program.
+- `is_main`: a boolean flag indicating if this is the main subroutine or not.
+- `signature`: a structured signature field composed by the function name, its input parameters, and the return type/s (in AVM types).
+- `body`: a sequence of basic blocks modeled as [`MemoryBasicBlock`](#memorybasicblock).
+- Optional fields:
+    - `pre_alloc`: an *optional* field containing the f-stack allocation (see the [relevant section above](#the-f-stack)).
+    - `source_location`: an *optional* field containing a representation of the source location for this subroutine (line and column number for start and end of the code block in the source file).
 
 ### **`SlotAllocation`**
 Describes scratch slot allocation for TEAL lowering.
@@ -472,17 +605,6 @@ Represents a full MIR program:
 
 ---
 
-## Utilities
-
-### **`produces_from_desc`**
-Given a description and arity, builds a tuple of produced local IDs:
-- size > 1 → `{desc}.0`, `{desc}.1`, ...
-- size = 1 → `{desc}`
-- size = 0 → `()`
-
----
-
-
 
 ## AbstractStore
 Store operations for a `local id` identified variable, which have not yet been materialized to a specific register (or in this case, a stack location). After the stack passes in this layer, no abstract stores should remain before TEAL lowering (see validation procedures). Resolving these is one half of the main objective of this layer.
@@ -490,11 +612,36 @@ Store operations for a `local id` identified variable, which have not yet been m
 ## AbstractLoad
 Load operations for a `local id` identified variable, which have not yet been materialized. After the stack passes in this layer, no abstract loads should remain before TEAL lowering (see validation procedures). Resolving these is the other half of the main objective of this layer.
 
-# Appendix: MIR outputs and reading guide
 
-There are a series of outputs. TODO: link every location where the output is made.
+# Appendix 
+## MIR outputs and reading guide
+
+There are a series of intermediate outputs written in human readable format throughout this stage.
+The first output is tagged `"build"`, and is output right after lowering has happened, but before any of the stack regions have been allocated.\
+
+
+TODO: link every location where the output is made.
 
 500. => stack operations get a stack description.
 Stack description for l-stack operations is just as is, with comma separated values, where the last values are the top of the stack and the first values are the bottom of the stack.
 
 Stack description for P, F, X come after (...)
+
+## Theoretical basis for global stack allocation
+TODO: high level review of shannon-bailey
+
+### e-stack
+
+### p-stack
+
+### l-stack
+
+### x-stack
+
+### Koopman's algorithm
+
+### Bailey's algorithm
+
+### Comment on global stack allocation
+<!-- > Divergence from the original paper:
+> No usage of p-stack and e-stack -->

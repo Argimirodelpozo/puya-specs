@@ -181,6 +181,10 @@ TODO
 # Validations performed
 ...TODO
 
+## Explicit checks should remain
+Before 
+
+
 # TEAL Layer nodes
 The IR instructions in this layer are a quite close model of AVM TEAL ops, save for structural containers and template variables which are not part of AVM intrinsics.
 

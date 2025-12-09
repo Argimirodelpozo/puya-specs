@@ -358,13 +358,16 @@ The sets satisfy the following two equations:
 
 The relevant nodes for this analysis are `AbstractStore` and `AbstractLoad`.
 
+## Dead store removal (l-stack case)
+TODO: isolate when this happens in l-stack construction and describe
+
 ## Peephole optimizations
 We define a peephole window of size 2, meaning the peephole optimizer will consider _pairs_ of operations inside each [basic block](#memorybasicblock).
 For all these, we consider a pair of ops. `(a, b)`.\
 The optimizer will perform the following passes in the order in which they are declared:
 
 <!-- TODO: all these are not independant. Should they be in one big optimization all together? -->
-### Eliminate redundant loads/stores
+### Move `Store{L,X,F}Stack` id's into products of previous op.
 
 ```py
 # move local_ids to produces of previous op where possible
@@ -385,29 +388,68 @@ TODO: illustrative example
 
 Note that, since this optimization is run after each stack region's allocation, each subsequent run unlocks new potential cases for `b`.
 
-### fold `store=>load` patterns
+### Eliminate top-of-stack renamings
+
+```py
+    # remove redundant stores and loads
+    if a.produces and a.produces[-1] == _get_local_id_alias(b):
+        return (a,)
+```
+> [Reference implementation](TODO_LINK)
+
+Consider now a pair where the last product of `a` is just a local id alias in `b`.
+This is, if `b` is a `MIR.StoreLStack` or a `MIR.LoadLStack` without copy, and the `depth` is 0. In other words, `b` takes the top of the stack and, through a store/load operation, renames it to `b.local_id`.\
+Then, `b` may be safely removed, and the resulting pattern is just `(a, )`.
 
 
-### Rename produced local IDs
+### Dead store removal (x-stack, f-stack cases)
 
-### Remove unnecessary stores
+> [!Note] l-stack dead store removal occurs during l-stack allocation. The other two stack region cases are handled here.
 
-### Replace dead stores with pops
+```py
+    if vla.is_dead_store(b):
+        return a, mir.Pop(n=1, source_location=b.source_location)
+```
+If `b` constitutes a *dead store* (see [Variable Lifetime Analysis section](#variable-lifetime-analysis) above), then it may be replaced by a `MIR.Pop` operation to pop the top value of the stack, as the last product of `a` is stored but never used again, and can therefore be safely discarded.
+The resulting pattern is then `(a, MIR.Pop(n=1))`.\
 
-### Remove load/store pairs that cancel out
+TODO: illustrative example
 
+### Fold `store=>load` chains inside the same region (non-rotational)
 
+```py
+    if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
+        match a, b:
+            case mir.LoadXStack(), mir.StoreXStack():
+                return ()
+            case mir.LoadFStack(), mir.StoreFStack():
+                return ()
+            case mir.AbstractLoad(), mir.AbstractStore():
+                # this is used see test_cases/bug_load_store_load_store
+                return ()
+```
 
+If `a` is a load operation, `b` is a store operation, and the local ids match, we have a `store=>load` chain. If, furthermore, these are both either:
+- x-stack operations,
+- f-stack operations, or
+
+<!-- TODO: analyze THIS case. Where is this used? check the example provided -->
+- abstract (i.e. unmaterialized yet),\
+
+we can safely remove them without breaking dataflow, as the load means the variable is already stored in the correct region of the stack.\
+The resulting pattern is then an empty tuple `()`, as both elements of the pair are removed.
+
+TODO: illustrative example
 
 # Validations performed
-TODO: validations
+TODO: isolate validations
 
 ## F-Stack pre-allocation AVM Type
 The f-stack pre-allocation variables should all be either `uint64` or `bytes` typed. `any` AVM types will raise an error at this stage.
 TODO: link to where this validation happen and explain a bit better why this is
 
 # Full models reference
-In this section we provide the [full set of nodes expressable in MIR](https://github.com/algorandfoundation/puya/blob/main/src/puya/mir/models.py).
+In this section we provide the [full set of nodes expressible in MIR](https://github.com/algorandfoundation/puya/blob/main/src/puya/mir/models.py).
 
 ## Top-Level Concepts
 
@@ -439,9 +481,6 @@ Pushes a literal Algorand address.
 
 ### **`Method`**
 Pushes a method selector/string literal for ABI dispatch.
-
-### **`Comment`**
-A no-op representing an inline comment (debug/pretty-print only).
 
 ---
 

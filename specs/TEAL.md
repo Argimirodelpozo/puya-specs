@@ -38,26 +38,68 @@ def mir_to_teal(
             raise InternalError("explicit condition check(s) removed during TEAL optimization")
     return teal
 ```
+
 That is, the special `main` subroutine is built first, then each subroutine in the program.
-A `TealProgram` structure is created with these, with the corresponding avm version and program kind (wether a stateful application or a logic signature).\
+
+A `TealProgram` structure is created with these, with the corresponding avm version and program kind (whether a stateful application or a logic signature).\
 Explicit checks ([`Assert`](TODO_LINK) and [`Err`](TODO_LINK) instructions) are collected.\
 [Optimizations](#optimizations-performed) are performed, and post-optimization explicit checks are collected again, and compared to those collected pre-optimization (see the [validations performed](#validations-performed) section below).\
 Finally, the optimized TEAL program is output.
+
+## Building
+Most MIR nodes are lowered as a single TEAL node, which in turn almost always represent a single TEAL op.\
+Notable exceptions to this rule are MIR `ConditionalBranch` nodes (which get lowered as 2 ops. to make the fallthrough case explicit), similarly to `Switch` and `Match` nodes.
+
+> [!NOTE] after building, `TEALBlocks` are no longer assured to be strict basic blocks with a single exit point.
+
+
+TODO: all other built models (any interesting parts)
+
+
+### Conditional Branch
+A [MIR conditional branch node](../specs/MIR.md) gets lowered as either a `BranchZero` TEAL node or a `BranchNotZero` TEAL node, followed by a `Branch` TEAL node targeting the next block.
+
+> [!INFO] Right after building but before any optimizations, an output may be obtained. The output at this stage is tagged "lowered" (for example `my_contract.lowered.teal`), and is governed by the `--output-intermediate-teal` flag.
 
 ## Intra-layer transformations
 
 
 # Optimizations performed
 
+TODO: DIAGRAMA_O0
+
+TODO: DIAGRAMA_O1
+
+TODO: DIAGRAMA_O2
+
 The main optimization loop (in [main.py](../puya/src/puya/teal/optimize/main.py)) executes
-for each subroutine, already lowered into TEAL after [MIR => TEAL lowering](MIR.md),
-the following set of optimizations is performed (reliant on )
+for each subroutine (inlcuding `main`), already lowered into TEAL after [MIR => TEAL lowering](MIR.md),
+the following set of optimizations is performed in the order in which they are presented, dependant on optimization level.
+
+## Subroutine optimizations at instruction level
+These are mostly peephole optimizations performed at the instruction (op.) level. Several passes are realized until a stable program is achieved.
+
+[Link to reference impl.](TODO_LINK)
+
+These passes work at the [block level](#teal-block), which means they are run once for each block in the subroutine, replacing and simplifying ops. _inside_ a given block.
+
+After every instruction level optimization pass through a block, a quick [stack height validation](#validations-performed) is performed for each block.
+
+A loop is in place to perform [constant stack shuffling](#), [repeated rotations simplificacion](#), and [peephole optimizations](#peephole-optimizations).\
+The loop works on the same block until a full pass without modifications is observed.
+
+
+### Constant stack shuffling
+
+
+### Repeated rotations simplification
 
 
 ## Peephole optimizations
-These are optimizations 
-Four windows of one, two, three and four opcodes respectively will be used.
-They will appear sequentially in order of window size, and are 
+These are optimizations that replace teal patterns for other, more budget-efficient or bytecode-succint patterns.
+
+There are windows of one, two, three and four opcodes respectively that will be used.
+They will appear sequentially in order of window size.
 
 Some preliminary definitions:
 - `{COMM_OP}` is a commutative op. One of 
@@ -144,13 +186,62 @@ TODO: complete
 ### Quadruplets:
 TODO
 
+> [!INFO] after the set of [op. level optimizations](#subroutine-op-optimizations) is run, an optional intermediate output may be emitted, with the qualifier _"peephole"_ (e.g. `my_contract.peephole.teal`).
+
+
 ## Subroutine Block optimizations
+> [!INFO] this set of optimizations is only performed on optimization levels `O1` and `O2`.
+
+Most of the subroutines in this pass deal with getting rid of jumps by inlining when possible. We simplify chains of single unconditional jump instruction blocks,...
+TODO: complete intro
+
+
+### Inline optimizations: jump chains
+Consider now the set of all blocks $b$ that are a single unconditional `Branch` to a target, have no stack manipulations associated, and are not the entry block.\
+
+We remove these from the subroutine blocks, keeping track of the link between original block label and their target.
+
+Now, for every jump chain $b_0 => b_1 => ... => b_n$, we backpropagate in order to have every $b_0, b_1...b_{n-1} => b_n$, mapping their unique identifying labels to the last on the chain.
+
+After we have simplified all possible chains, we traverse all instructions inside the subroutine. For every jump instruction (`Branch`, `BranchNonZero`, `BranchZero`, `Switch` and `Match`) targetting any element in a chain, we replace the target by the last element.
+
+
+### Inline optimizations: single instruction blocks
+TODO: complete
+
+### Inline optimizations: singly referenced blocks
+TODO: complete
+
+### Replacement of subroutine invocations for branches
+For a given subroutine, we iterate over all instructions. If a given `callsub` op. is found, and the jump target subroutine is determined to be "branchable" (see above for the definition), the operation is replaced by a hard branch (`b`, represented in this layer by the [`Branch`](#TODO_branch) node) to the same jump target.
+
+
+### Inline jump chains
+TODO: this one is repeated, but is the same as above. Should we keep it here?
+
+
+### Remove jump fallthroughs
+As per the building process, [MIR Conditionals](#TODO_LINK_MIR), as well as [Match] and [Switch] MIR nodes, generate explicit fallthrough hard branches (`b`, represented as `Branch` in this layer). These fallthroughs are useful for some analysis, but have no impact in control flow as the natural opcode evaluation order would trivially flow into the next line. Therefore, they are trivially removable at this stage.\
+Consider every pair of consecutive blocks $b0, b1$. whenever the last instruction in $b0$ is a `Branch` (unconditional branch) and the jump target is the unique identifying label of $b1$, we remove the branch operation from $b0$. 
+
+TODO: what happens if I have an explicit branch to the label right next to it? Should we protect against this by making sure the branch is a fallthrough (e.g. check that the instruction right before is a bz or bnz)?
+
+TODO: understand stack manipulations guard case for O0
+
 
 ## Constant gathering
+> [!INFO] this optimization is performed on all optimization levels (`O0`, `O1` and `O2`).
+
+
+
 
 ## Combine pushes
 
+> [!INFO] this is only done for optimization levels `O1` and `O2`.
 
+If there is any sequence of consecutive `pushint` or `pushbytes` operations present in any block, in any subroutine, 
+they are compressed into a `pushints` or `pushbytess` respectively. In the case of `pushbytess`, byte encodings are preserved for each value. Comments are comma-concatenated accordingly.
+TODO: example
 
 
 <!-- def optimize_teal_program(
@@ -177,12 +268,25 @@ TODO
         combine_pushes(teal_program) -->
 
 
-
 # Validations performed
-...TODO
+In this layer, validations are incorporated and performed after certain key optimizing passes in order to ensure properties like stack consistency, or the survival of checks marked as _explicit_.
 
-## Explicit checks should remain
-Before 
+## Stack height validation (TEAL block level)
+The block ops. are traversed in order. The condition checked is:\
+$entry_stack_height + sum op.produces - op.consumes = exit_stack_height$, 
+and also the series of partial sums obtained by sequentially subtracting `op.consumes` may never be less than zero (implying a stack underflow error was introduced by an optimization).
+
+Note that blocks whose terminator are program/subroutine exit ops. (`return`, `retsub` and `err`) will discard all extra elements in stack and therefore constitute the only exceptions to the aforementioned condition.
+
+[LINK TO REFERENCE IMPL](TODO)
+
+
+## _Explicit check_ invariance
+After lowering and before running optimization passes, an initial set of explicit checks is collected (see above in the build section). An explicit check is an `Assert` or `Err` TEAL model that has been marked as such, and thus will have an internal flag set to True when built.
+The collection algorithm simply tallies the amount of explicit checks by subroutine.
+After all [optimization passes](#optimizations-performed) are performed, explicit checks are collected again.
+A decrease in explicit checks for a given subroutine means an optimization has been semantically destructive for the purpose of this validation, and will thus fail compilation.
+> [!NOTE] the word _decrease_ hides a subtlety here; consider that ops may be duplicated on [inlining](#optimizations-performed), and thus there could be _more_ explicit checks after optimization.
 
 
 # TEAL Layer nodes
@@ -193,9 +297,9 @@ Consider a stack, modelled as a list of local ids, which are strings that repres
 We define 5 kinds of stack manipulations:
 - `StackConsume`: takes `n` elements off the top of the stack.
 - `StackExtend`: adds a sequence of local id's to the top of the stack.
-- `StackDefine`: considering the set of unique variables in the stack. It performs a set intersection with the given elements, returning an extended set.
+- `StackDefine`: considering the set of unique variables in the stack, it performs a set intersection with the given elements, returning an extended set.
 - `StackInsert`: inserts a local id at a given stack `depth`. For a given stack $s$, the insertion index is computed as $idx = |s| - depth$.
-- `StackPop`: pops the stack to the specified `depth`. The index of the eliminated element is computed as $idx = |s| - depth - 1$
+- `StackPop`: pops the stack at the specified `depth`. The index of the eliminated element is computed as $idx = |s| - depth - 1$
 
 
 
@@ -249,5 +353,3 @@ class TealOp:
     def stack_height_delta(self) -> int:
         return self.produces - self.consumes
 ``` -->
-
-

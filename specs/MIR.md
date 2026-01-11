@@ -115,7 +115,7 @@ We define a dead store as a store for a variable (identified by local id $ID$) t
 TODO: EXAMPLE
 
 Firstly, we perform Variable Lifetime Analysis for the given subroutine. Then, for each basic block in the subroutine body, we loop through every op.
-We take an analysis window of two ops (i.e. we analyze them in consecutive pairs) for every LStack Store. 
+We take an analysis window of two ops (i.e. we analyze them in consecutive pairs) for every LStack Store.
 
 <!-- def _dead_store_removal(sub: mir.MemorySubroutine) -> None:
     vla = VariableLifetimeAnalysis(sub)
@@ -219,7 +219,6 @@ The visitor consumes keeps track of depth, doing depth += #consumed - #produced 
 
 TODO: this is an impl. detail
 
-TODO: question: 
 
 ```py
 @typing.override
@@ -240,6 +239,8 @@ TODO: explain `_copy_usage_pairs`
 Consider a given basic block, all of its successors, and all of the predecessors of its successors.
 We define an `EdgeSet` as all edges who share a parent, a child, a sibling or a co-parent.
 
+TODO: example of edge set
+
 As an auxiliary way of collecting all of the information pertaining a block for the construction of the x-stack, we define a `BlockRecord`, that contains:
 - a basic block (in this case MIR basic block)
 - a list of all local references (abstract loads and stores)
@@ -248,13 +249,15 @@ As an auxiliary way of collecting all of the information pertaining a block for 
 - children, parents, co-parents and co-siblings
 
 
+
+
 # The f-stack
 
 The f-stack is initialized in the entry block and remains constant throughout a whole subroutine.
 For f-stack building, we consider now a subroutine divided in (MIR) basic blocks.
 Now, consider the set of all variables referenced in this subroutine (i.e. all instances of `AbstractStore` and `AbstractLoad`), sorted by their local id.
-
-> [!NOTE] In case no variable defs or uses are found, that is, the whole subroutine has no instances of `AbstractStore` or `AbstractLoad`, the f-stack is empty and no attempt to build it is performed.
+Note that, at the point of its construction, all L-stack and X-stack allocations have been allocated in code.
+> [!NOTE] In case no variable defs or uses are found, that is, the whole subroutine has no instances of `AbstractStore` or `AbstractLoad` at this point, the f-stack is empty and no attempt to build it is performed.
 
 In pseudocode:
 ```python
@@ -339,8 +342,11 @@ For the optimization pass, it's crucial to first perform a subroutine-wide varia
 ## Variable lifetime analysis
 
 We say that a variable is _live_ if it holds a value that will/might be used in the future.
-(https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf)
-Consider now the following sets:
+(https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf).
+
+In the subsequent analysis, a node `n` is any [MIR instruction](#full-models-reference).
+
+We define the following sets:
 
 `use[n]`: the set of variable uses in the node `n` of the control flow graph. A variable use is a right hand side appearence of a variable's identifier.
 
@@ -358,6 +364,15 @@ The sets satisfy the following two equations:
 
 The relevant nodes for this analysis are `AbstractStore` and `AbstractLoad`.
 
+Furthermore, a node `n'` that is an `AbstractStore` is a *dead store* if the variable to which it stores `v` (identified solely by its local id) is such that:
+
+`v` $\notin$ `out[n']`.
+
+In other words, the target store variable `v` is not live-out for `n'`, which means that there is no control flow path to a node that uses this variable from this point of the program on.
+
+### Iterative construction of variable lifetime analysis sets
+TODO: explain
+
 ## Dead store removal (l-stack case)
 TODO: isolate when this happens in l-stack construction and describe
 
@@ -366,7 +381,7 @@ We define a peephole window of size 2, meaning the peephole optimizer will consi
 For all these, we consider a pair of ops. `(a, b)`.\
 The optimizer will perform the following passes in the order in which they are declared:
 
-<!-- TODO: all these are not independant. Should they be in one big optimization all together? -->
+<!-- TODO: all the following are not independant. Should they be in one big optimization all together? -->
 ### Move `Store{L,X,F}Stack` id's into products of previous op.
 
 ```py
@@ -442,7 +457,7 @@ The resulting pattern is then an empty tuple `()`, as both elements of the pair 
 TODO: illustrative example
 
 # Validations performed
-TODO: isolate validations
+TODO: isolate all validations
 
 ## F-Stack pre-allocation AVM Type
 The f-stack pre-allocation variables should all be either `uint64` or `bytes` typed. `any` AVM types will raise an error at this stage.
@@ -653,7 +668,11 @@ Load operations for a `local id` identified variable, which have not yet been ma
 
 
 # Appendix 
-## MIR outputs and reading guide
+
+## MIR syntax
+
+
+## MIR outputs
 
 There are a series of intermediate outputs written in human readable format throughout this stage.
 The first output is tagged `"build"`, and is output right after lowering has happened, but before any of the stack regions have been allocated.\

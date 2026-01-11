@@ -7,7 +7,22 @@ akin to an AST. It is built so that it "normalizes" what is expressible for the 
 
 # Optimizations performed
 
+
 # Validations performed
+
+>[REF_IMPL] Most explicit validation is carried in here: link
+```py
+def validate_awst(module: awst_nodes.AWST) -> None:
+    InnerTransactionsValidator.validate(module)
+    InnerTransactionUsedInALoopValidator.validate(module)
+    StaleInnerTransactionsValidator.validate(module)
+    BaseInvokerValidator.validate(module)
+    StorageTypesValidator.validate(module)
+    LabelsValidator.validate(module)
+    ImmutableValidator.validate(module)
+    AbiMethodNameValidator.validate(module)
+```
+
 
 # Type system (WTypes)
 

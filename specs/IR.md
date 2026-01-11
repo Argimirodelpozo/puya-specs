@@ -9,6 +9,8 @@ TODO: IR main until we get to the building main
 
 ### Builder
 
+
+
 ## SSA construction: Braun Algorithm
 
 
@@ -38,7 +40,13 @@ and finally destructuring.
 
 # Optimizations performed
 
+At this level, we define a subroutine as "trivial" if:
+- it has a single basic block,
+- it has _at most_ one instruction, and
+- no phi instructions
+
 ## Subroutine inlining
+
 ## Split parallel copies
 ## Constant replacer
 ## Copy propagation
@@ -75,6 +83,7 @@ In other words, we get:\
 ## Merge chained aggregate reads
 ## Replace aggregate box ops.
 ## Minimize box exist asserts
+
 ## Constant reads and unobserved writes elimination
 
 <!-- this "opt." is only performed after all IR lowerings but BEFORE SSA destructuring -->
@@ -85,16 +94,29 @@ TODO: explain
 ## SSA Destructuring
 
 
+# Validations performed
+TODO: intro text
 
-# Annex: definitions
-## What is a Control Flow Diagram (CFG)?
+## After [destructuring](#ssa-destructuring)
+TODO: all validators here (from IR/validate)
 
-## What is a Basic Block?
+### Infinite loop detector
 
-## What is the dominance relation?
+```py
+class NoInfiniteLoopsValidator(DestructuredIRValidator):
+    @typing.override
+    def visit_block(self, block: models.BasicBlock) -> None:
+        assert block.terminator is not None, "unterminated block found during IR validation"
+        if block.terminator.unique_targets == [block]:
+            logger.error(
+                "infinite loop detected",
+                location=block.terminator.source_location or block.source_location,
+            )
+```
+This validation pass checks that each basic block has a terminator, and that the target block for the terminator is _not_ uniquely itself, as that would constitute a very simple case of an infinite loop.
+> [!Note]
+> Infinite loops don't make sense in the AVM architecture, as they would just consistently run out of budget, reverting any state changes they may attempt and wasting computation.
+TODO: what about an use case for programs not meant to be run but only simulated (e.g. Algoland Tasos example)
 
-## Dominance frontiers
-
-## Classic (Cytron et al.) SSA form computation
 
 # Full models reference

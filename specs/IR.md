@@ -16,6 +16,21 @@ TODO: IR main until we get to the building main
 
 ## Implementation details
 
+The following diagram shows the transformation pipeline schematically.
+
+```mermaid
+flowchart TD
+    A[Start: get_transform_pipeline]
+
+    B[_optimize_program_ir<br/>qualifier="ssa.opt"<br/>artifact_ir]
+    C[_lower_aggregate_ir<br/>ref]
+    D[_optimize_program_ir<br/>qualifier="ssa.array.opt"<br/>artifact_ir]
+    E[slot_elimination<br/>ref]
+    F[destructure_ssa]
+
+    A --> B --> C --> D --> E --> F
+```
+
 
 After building the IR, the _transform pipeline_ is as follows:
 ```python

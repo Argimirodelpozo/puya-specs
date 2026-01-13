@@ -22,13 +22,41 @@ def validate_awst(module: awst_nodes.AWST) -> None:
     ImmutableValidator.validate(module)
     AbiMethodNameValidator.validate(module)
 ```
+> [!NOTE] there are also several validators for specific fields in AWST node constructions. For the sake of clarity, you may find these small, specific subroutines in each relevant node's section in the [full node reference](#awst-node-reference). 
+
+## Inner transactions general validation
+
+## Inner transactions in loop validation
+
+## Stale inner transactions validation
+
+## Base invoker validation
+TODO: link base_invoker.py
+
+## Storage types validation
+
+## Labels validation
+
+## Immutability validation
+
+## ABI method name validation
 
 
 # Type system (WTypes)
 
-🔹 1. Runtime Representation Kinds (_ValueType)
+## Runtime Representation Kinds (`_ValueType`)
 
-These describe how a value is physically represented at runtime.
+These describe how a value is physically represented at runtime. The enumeration is:
+- uint64
+- bytes
+- reference
+- composite
+- none
+
+Two of these have a correspondence with AVM types (uint64 and bytes) while the others do not.
+TODO: link to definition
+
+
 
 ValueType	Meaning
 uint64	Value is a single AVM uint64 stack element.
@@ -51,7 +79,9 @@ ephemeral_uint64	uint64	no	Used for ephemeral runtime-only values.
 ephemeral_composite	composite	no	Temporary composite values.
 ephemeral_reference	reference	no	Reference-type containers.
 static_type	none	no	Types with no runtime value (void, type-only).
-🧱 3. Basic WTypes
+
+
+## Basic WTypes
 
 Primitive, single-slot, and simple persistable types.
 
@@ -247,6 +277,10 @@ arc4.address	static array of 32 bytes
 
 
 # AWST Node reference
+
+The following section covers every single node expressable in the AWST.\
+For each, we also give its representation in the `awst` human readable output file, as well as any specific field validations performed.
+
 
 ## Base
 

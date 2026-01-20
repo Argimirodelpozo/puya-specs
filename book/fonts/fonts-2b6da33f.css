@@ -1,0 +1,119 @@
+/* Custom font stack for Algorand specs */
+
+@font-face {
+  font-family: "Aeonik";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/Aeonik-Light-0d3c1978.woff2') format("woff2"),
+    url('../fonts/Aeonik-Light-18147ea6.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Aeonik";
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/Aeonik-LightItalic-33e4ef3b.woff2') format("woff2"),
+    url('../fonts/Aeonik-LightItalic-d9af10fb.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Aeonik";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Aeonik-Regular-419a069f.woff2') format("woff2"),
+    url('../fonts/Aeonik-Regular-75cbe503.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Aeonik";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Aeonik-RegularItalic-4407839d.woff2') format("woff2"),
+    url('../fonts/Aeonik-RegularItalic-dbca06ce.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Aeonik";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Aeonik-Bold-78fff475.woff2') format("woff2"),
+    url('../fonts/Aeonik-Bold-308325f3.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Aeonik";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Aeonik-BoldItalic-17d957e6.woff2') format("woff2"),
+    url('../fonts/Aeonik-BoldItalic-efb8e8aa.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Inter-Regular-d1598672.woff2') format("woff2"),
+    url('../fonts/Inter-Regular-5ef7c03c.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Inter-Italic-68c652df.woff2') format("woff2"),
+    url('../fonts/Inter-Italic-44cf1ed8.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/Inter-Medium-76f810d3.woff2') format("woff2"),
+    url('../fonts/Inter-Medium-a6099be4.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/Inter-MediumItalic-5914cbaf.woff2') format("woff2"),
+    url('../fonts/Inter-MediumItalic-d6253ce2.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Inter-Bold-b275913f.woff2') format("woff2"),
+    url('../fonts/Inter-Bold-fe64ef80.woff') format("woff");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Inter-BoldItalic-abd366e0.woff2') format("woff2"),
+    url('../fonts/Inter-BoldItalic-429532a9.woff') format("woff");
+}
+
+/* Source Code Pro remains the monospace fallback for code blocks */
+@font-face {
+  font-family: "Source Code Pro";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/source-code-pro-v11-all-charsets-500-2bdd9410.woff2')
+    format("woff2");
+}

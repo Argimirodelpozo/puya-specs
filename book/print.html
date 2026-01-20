@@ -1,0 +1,1989 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Algorand Puya Compiler Specifications</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Puya compiler specs.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="shortcut icon" href="favicon-f6a849ea.png">
+        <link rel="stylesheet" href="css/variables-db8bf248.css">
+        <link rel="stylesheet" href="css/general-8f6c052e.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-2b6da33f.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-aba8760a.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "dark";
+            window.path_to_searchindex_js = "searchindex-678e44bd.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-0c348650.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-dark">Dark</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Algorand Puya Compiler Specifications</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Argimirodelpozo/puya-specs" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="puya-compiler-specifications"><a href="#puya-compiler-specifications" class="header">Puya Compiler Specifications</a></h1>
+<p>PLACEHOLDER COVER</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="abstract-wyvern-syntax-tree-entry-to-compiler"><a class="header" href="#abstract-wyvern-syntax-tree-entry-to-compiler">Abstract Wyvern Syntax Tree (entry to compiler)</a></h1>
+<p>The first intermediate representation in the compiler is a tree-like structure, akin to an AST. It is built so that it “normalizes” what is expressible for the compiler backend.</p>
+<!-- TODO: improve general description -->
+<h1 id="validations-performed"><a class="header" href="#validations-performed">Validations performed</a></h1>
+<p>The following is a series of validations performed on a finished AWST. They are generally simple in nature, and implemented as visitors for specific <a href="#awst-node-reference">nodes</a>. They are run singularly, sequentially, and in the order in which they are presented in this specification.</p>
+<blockquote>
+<p>You may find the function that performs AWST validations <a href="TODO_LINK">here</a> in the Puya implementation.</p>
+</blockquote>
+<blockquote>
+<p>[!NOTE] there are also several validators for specific fields in AWST node constructions. For the sake of clarity, we include those small, specific subroutines in each relevant node’s section in the <a href="#awst-node-reference">full node reference</a>.</p>
+</blockquote>
+<h2 id="inner-transactions-general-validation"><a class="header" href="#inner-transactions-general-validation">Inner transactions (general) validation</a></h2>
+<!-- TODO: explain -->
+<h2 id="inner-transactions-in-loop-validation"><a class="header" href="#inner-transactions-in-loop-validation">Inner transactions in loop validation</a></h2>
+<!-- TODO: explain -->
+<h2 id="stale-inner-transactions-validation"><a class="header" href="#stale-inner-transactions-validation">Stale inner transactions validation</a></h2>
+<!-- TODO: explain -->
+<h2 id="base-invoker-validation"><a class="header" href="#base-invoker-validation">Base invoker validation</a></h2>
+<p>We traverse <code>SubroutineCallExpressions</code>, both inside and outside contracts, and keeping track of the contract class being currently visited.\</p>
+<p>To validate each of these, we skip <code>SubroutineID</code> target calls, as these are always valid (consider how a “free” module-level subroutine may be called from inside or outside a contract).\</p>
+<p>for targets that are instance methods of either a contract or any base class of a contract (<code>InstanceMethodTarget</code> and <code>SuperInstanceMethodTarget</code> respectively), if they are used outside of a contract method, then the compiler emits and <code>error</code> and compilation fails.\</p>
+<p>Finally, for call targets that are contract methods (<code>ContractMethodTarget</code>) we check that the call happens inside the context of a caller contract class and that the target base contract is either the caller contract class, or some parent contract in the current method resolution order.<br>Otherwise, this is either another instance of a contract method being invoked outside of the context of a contract, or an invocation outside of the current hierarchy, and therefore is invalid (failing compilation with an <code>error</code>).</p>
+<h2 id="storage-types-validation"><a class="header" href="#storage-types-validation">Storage types validation</a></h2>
+<!-- TODO: explain -->
+<h2 id="labels-validation"><a class="header" href="#labels-validation">Labels validation</a></h2>
+<p>This validator centers around all <code>Label</code>s in an AWST, from now on refered to as “labels”.<br>It checks for label existance (<code>Goto</code> nodes can’t target inexistant labels) and for label uniqueness (in the context of a given module-level <code>Subroutine</code> or an externally callable contract function, <code>ContractMethod</code>).</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Implementation-wise, a <code>Label</code> in this layer is just a type rename of a python native <code>str</code>.</p>
+</blockquote>
+<!-- > [!NOTE] in TEAL, labels must be unique for a single contract file. However, the compiler will inject 'function context' into labels down the pipeline. TODO: improve explanation, is it correct? -->
+<p>We traverse the AWST, instantiating independant visitors for both every module level subroutine (<code>Subroutine</code> nodes found outside of any classes as module statements) and for every method inside of a contract.\</p>
+<p>The function body is visited at the <code>Block</code> level, keeping track of labels associated to each block. If they are not unique (i.e. have been seen before in the same function context), an <code>error</code> is logged and compilation fails.\</p>
+<p>Furthermore, the validator visits all <code>Goto</code> nodes at the block statement level. If a <code>Goto</code> node is found whose target label is not present in any block in the current function, an <code>error</code> is logged and compilation fails.</p>
+<h2 id="immutability-validation"><a class="header" href="#immutability-validation">Immutability validation</a></h2>
+<!-- TODO: explain -->
+<h2 id="abi-method-name-validation"><a class="header" href="#abi-method-name-validation">ABI method name validation</a></h2>
+<blockquote>
+<p>[!INFO]
+The regular expression for ARC4 compliant method names is</p>
+<pre><code class="language-regexp">"^[_A-Za-z][A-Za-z0-9_]*$"
+</code></pre>
+<p>you may refer to the <a href="TODO_LINK">ARC4 specification</a> for more details.</p>
+</blockquote>
+<p>We traverse the AWST, looking for <code>ContractMethod</code> nodes and <code>MethodConstant</code> nodes.\</p>
+<p>For the first one, if it constitues an ARC4 method, then it must have an <code>ARC4ABIMethodConfig</code> node associated.<br>We validate its name against the ARC4 regular expresion.</p>
+<p>For the second one, we consider the <code>MethodSignature</code> node associated to it, and validate the name in this signature against the aforementioned regular expression.</p>
+<p>Note that the compiler emits a <code>warning</code> log for each instance found of a method name that is not ARC4 compliant, but it will not fail compilation solely because of this (unless compiling with the <code>--treat-warnings-as-errors</code> option).</p>
+<h1 id="type-system-wtypes"><a class="header" href="#type-system-wtypes">Type system (WTypes)</a></h1>
+<h2 id="runtime-representation-kinds-_valuetype"><a class="header" href="#runtime-representation-kinds-_valuetype">Runtime Representation Kinds (<code>_ValueType</code>)</a></h2>
+<p>These describe how a value is physically represented at runtime. The enumeration is:</p>
+<ul>
+<li>uint64</li>
+<li>bytes</li>
+<li>reference</li>
+<li>composite</li>
+<li>none</li>
+</ul>
+<p>Two of these have a correspondence with AVM types (uint64 and bytes) while the others do not.
+TODO: link to definition</p>
+<p>ValueType	Meaning
+uint64	Value is a single AVM uint64 stack element.
+bytes	Value is a single AVM byte slice.
+reference	Represents a pointer-like reference (arrays, structs, etc.).
+composite	Value consists of multiple underlying runtime values.
+none	No runtime value (e.g., void or static type).</p>
+<p>value_type.avm_type controls whether the type maps to AVM int or bytes stack slots.</p>
+<p>🔹 2. Persistability Semantics (_TypeSemantics)</p>
+<p>Describes where the type may live (stack only, ARC-4 / state, composite, reference).</p>
+<p>Semantics	ValueType	Persistable	Notes
+persistable_uint64	uint64	yes	e.g., uint64, asset, application
+persistable_bytes	bytes	yes	e.g., string, account, biguint
+maybe_persistable_composite	composite	depends	Composite types may become persistable if all fields are.
+ephemeral_uint64	uint64	no	Used for ephemeral runtime-only values.
+ephemeral_composite	composite	no	Temporary composite values.
+ephemeral_reference	reference	no	Reference-type containers.
+static_type	none	no	Types with no runtime value (void, type-only).</p>
+<h2 id="basic-wtypes"><a class="header" href="#basic-wtypes">Basic WTypes</a></h2>
+<p>Primitive, single-slot, and simple persistable types.</p>
+<p>Type	Description
+void	No value; used for statements or uninhabited types.
+bool	Boolean stored as AVM uint64 (0/1).
+uint64	AVM’s native integer type.
+biguint	Arbitrarily large unsigned integer (byte-encoded).
+string	UTF-8 string (persistable bytes).
+asset	Asset ID (uint64).
+account	Account address (bytes).
+application	Application ID (uint64).
+state_key	App state key (bytes).
+box_key	Box key (bytes).
+uint64_range	Static-only type used for range iteration.</p>
+<p>All basic WTypes have immutable = True.</p>
+<p>🧩 4. Bytes Types
+BytesWType(length: int | None)</p>
+<p>Represents a byte string with optional fixed length.</p>
+<p>Always persistable and immutable.</p>
+<p>Examples:</p>
+<p>bytes
+bytes[16]
+bytes[32]</p>
+<p>🔃 5. Enumeration
+WEnumeration(sequence_type)</p>
+<p>Represents enumerate(x) types from the language.</p>
+<p>Static-only type (no runtime value).</p>
+<p>Example:</p>
+<p>enumerate_uint64
+enumerate_bytes</p>
+<p>🚦 6. Transaction-Related Types</p>
+<p>Types referring to transactions in the group or inner transactions.</p>
+<p>WGroupTransaction(transaction_type)</p>
+<p>Represents gtxn references.</p>
+<p>WInnerTransaction(transaction_type)</p>
+<p>Represents an inner transaction object.</p>
+<p>WInnerTransactionFields(transaction_type)</p>
+<p>Represents the inner transaction field dictionary.</p>
+<p>All three:</p>
+<p>Are ephemeral</p>
+<p>Composite or uint64 depending on subtype</p>
+<p>Have names like:</p>
+<p>group_transaction_pay</p>
+<p>inner_transaction_fields_axfer</p>
+<p>inner_transaction_app</p>
+<p>📦 7. Reference Types
+ReferenceArray(element_type)</p>
+<p>An array of unknown size, implemented as a reference.</p>
+<p>Not persistable.</p>
+<p>Elements must be immutable and not void.</p>
+<p>Example:</p>
+<p>ref_array<uint64>
+ref_array&lt;bytes[32]&gt;</uint64></p>
+<p>🧱 8. Tuple Types
+WTuple(types: tuple[WType], names: Optional[tuple[str]])</p>
+<p>Fixed-size heterogeneous product type.</p>
+<p>Aggregate type.</p>
+<p>Persistable iff all fields persistable.</p>
+<p>Immutable iff all fields immutable.</p>
+<p>Supports:</p>
+<p>Named fields (struct-like)</p>
+<p>Unnamed tuples (positional)</p>
+<p>Example names:</p>
+<p>tuple&lt;uint64,bytes[16]&gt;
+tuple&lt;x:uint64,y:uint64&gt;</p>
+<p>🔐 9. ARC-4 Type System</p>
+<p>All ARC-4 types are persistable and encode to strict ARC-4 ABI formats.</p>
+<p>9.1 Basic ARC-4 Types
+ARC4Type(name=“arc4.bool”)</p>
+<p>ARC-4 booleans (0x00 / 0x01).</p>
+<p>9.2 ARC-4 Integers
+ARC4UIntN(n)</p>
+<p>Unsigned integer of exactly n bits, where:</p>
+<p>n divisible by 8</p>
+<p>8 ≤ n ≤ 512</p>
+<p>Examples:</p>
+<p>arc4.uint8
+arc4.uint256
+arc4.uint512</p>
+<p>9.3 ARC-4 Fixed-point
+ARC4UFixedNxM(n, m)</p>
+<p>n bits for integer portion</p>
+<p>m decimal precision bits</p>
+<p>n must be multiple of 8</p>
+<p>1 ≤ m ≤ 160</p>
+<p>Example:</p>
+<p>arc4.ufixed128x10</p>
+<p>9.4 ARC-4 Tuples
+ARC4Tuple(types)</p>
+<p>Aggregate of persistable types.</p>
+<p>Example:</p>
+<p>arc4.tuple&lt;uint64,bytes[32]&gt;</p>
+<p>All members must be persistable.</p>
+<p>9.5 ARC-4 Arrays
+ARC4DynamicArray(element_type)</p>
+<p>Dynamic array of persistable elements.</p>
+<p>ARC4StaticArray(element_type, array_size)</p>
+<p>Fixed-length array.</p>
+<p>Examples:</p>
+<p>arc4.dynamic_array<uint64>
+arc4.static_array&lt;bytes[32], 4&gt;</uint64></p>
+<p>9.6 ARC-4 Structs
+ARC4Struct(fields, frozen)</p>
+<p>Named fields, like a proper struct.</p>
+<p>Must be persistable (all fields persistable).</p>
+<p>frozen=True makes it immutable if all fields are immutable.</p>
+<p>Example:</p>
+<p>arc4.struct { a:uint64, b:bytes[16] }</p>
+<p>9.7 ARC-4 Aliases
+Alias	Expands to
+arc4.byte	arc4.uint8
+arc4.string	dynamic array of bytes
+arc4.address	static array of 32 bytes</p>
+<h1 id="awst-node-reference"><a class="header" href="#awst-node-reference">AWST Node reference</a></h1>
+<p>The following section covers every single node expressable in the AWST.<br>For each, we also give its representation in the <code>awst</code> human readable output file, as well as any specific field validations performed.</p>
+<h2 id="base"><a class="header" href="#base">Base</a></h2>
+<ul>
+<li><code>Node</code></li>
+<li><code>Statement</code> – base class for all statement nodes</li>
+<li><code>Expression</code> – base class for all expression nodes</li>
+<li><code>RootNode</code> – base class for top-level compilation units</li>
+<li><code>Function</code> – base class for subroutines / methods</li>
+<li><code>ContractMemberNode</code> – base class for contract-scoped members</li>
+</ul>
+<hr>
+<h2 id="statement-nodes"><a class="header" href="#statement-nodes">Statement Nodes</a></h2>
+<ul>
+<li><code>ExpressionStatement</code></li>
+<li><code>Block</code></li>
+<li><code>Goto</code></li>
+<li><code>IfElse</code></li>
+<li><code>Switch</code></li>
+<li><code>WhileLoop</code></li>
+<li><code>LoopExit</code></li>
+<li><code>LoopContinue</code></li>
+<li><code>ReturnStatement</code></li>
+<li><code>AssignmentStatement</code></li>
+<li><code>UInt64AugmentedAssignment</code></li>
+<li><code>BigUIntAugmentedAssignment</code></li>
+<li><code>BytesAugmentedAssignment</code></li>
+<li><code>ForInLoop</code></li>
+</ul>
+<hr>
+<h2 id="literal--constant-expression-nodes"><a class="header" href="#literal--constant-expression-nodes">Literal / Constant Expression Nodes</a></h2>
+<ul>
+<li><code>AssertExpression</code></li>
+<li><code>IntegerConstant</code></li>
+<li><code>DecimalConstant</code></li>
+<li><code>BoolConstant</code></li>
+<li><code>BytesConstant</code></li>
+<li><code>StringConstant</code></li>
+<li><code>VoidConstant</code></li>
+<li><code>TemplateVar</code></li>
+<li><code>MethodConstant</code></li>
+<li><code>AddressConstant</code></li>
+</ul>
+<p>(Plus alias type: <code>CompileTimeConstantExpression</code>)</p>
+<hr>
+<h2 id="arc4-encoding--conversion-expressions"><a class="header" href="#arc4-encoding--conversion-expressions">ARC4 Encoding / Conversion Expressions</a></h2>
+<ul>
+<li><code>ARC4Encode</code></li>
+<li><code>ARC4Decode</code></li>
+<li><code>ARC4FromBytes</code></li>
+<li><code>ConvertArray</code></li>
+<li><code>NewArray</code></li>
+<li><code>NewStruct</code></li>
+<li><code>ARC4Router</code></li>
+</ul>
+<hr>
+<h2 id="array--tuple--struct-expressions"><a class="header" href="#array--tuple--struct-expressions">Array / Tuple / Struct Expressions</a></h2>
+<ul>
+<li><code>Copy</code></li>
+<li><code>ArrayConcat</code></li>
+<li><code>ArrayExtend</code></li>
+<li><code>ArrayPop</code></li>
+<li><code>ArrayReplace</code></li>
+<li><code>ArrayLength</code></li>
+<li><code>TupleExpression</code></li>
+<li><code>TupleItemExpression</code></li>
+<li><code>NamedTupleExpression</code></li>
+<li><code>FieldExpression</code></li>
+<li><code>IndexExpression</code></li>
+<li><code>SliceExpression</code></li>
+<li><code>IntersectionSliceExpression</code></li>
+</ul>
+<hr>
+<h2 id="storage--state-expressions"><a class="header" href="#storage--state-expressions">Storage &amp; State Expressions</a></h2>
+<ul>
+<li><code>AppStateExpression</code></li>
+<li><code>AppAccountStateExpression</code></li>
+<li><code>BoxPrefixedKeyExpression</code></li>
+<li><code>BoxValueExpression</code></li>
+<li><code>StorageExpression</code> (alias:
+<code>AppStateExpression | AppAccountStateExpression | BoxValueExpression</code>)</li>
+<li><code>StateGet</code></li>
+<li><code>StateGetEx</code></li>
+<li><code>StateExists</code></li>
+<li><code>StateDelete</code></li>
+</ul>
+<hr>
+<h2 id="inner-transaction-expressions"><a class="header" href="#inner-transaction-expressions">Inner-Transaction Expressions</a></h2>
+<ul>
+<li><code>CreateInnerTransaction</code></li>
+<li><code>UpdateInnerTransaction</code></li>
+<li><code>SetInnerTransactionFields</code></li>
+<li><code>SubmitInnerTransaction</code></li>
+<li><code>InnerTransactionField</code></li>
+<li><code>GroupTransactionReference</code></li>
+</ul>
+<hr>
+<h2 id="misc-core-expressions"><a class="header" href="#misc-core-expressions">Misc Core Expressions</a></h2>
+<ul>
+<li><code>SizeOf</code></li>
+<li><code>IntrinsicCall</code></li>
+<li><code>VarExpression</code></li>
+<li><code>CheckedMaybe</code></li>
+<li><code>SingleEvaluation</code></li>
+<li><code>ReinterpretCast</code></li>
+<li><code>ConditionalExpression</code></li>
+<li><code>AssignmentExpression</code></li>
+<li><code>CommaExpression</code></li>
+<li><code>Emit</code></li>
+<li><code>Range</code></li>
+<li><code>Enumeration</code></li>
+<li><code>Reversed</code></li>
+<li><code>StateGet</code></li>
+<li><code>StateGetEx</code></li>
+<li><code>StateExists</code></li>
+<li><code>StateDelete</code></li>
+<li><code>CompiledContract</code></li>
+<li><code>CompiledLogicSig</code></li>
+</ul>
+<hr>
+<h2 id="comparison-expressions"><a class="header" href="#comparison-expressions">Comparison Expressions</a></h2>
+<ul>
+<li><code>NumericComparisonExpression</code></li>
+<li><code>BytesComparisonExpression</code></li>
+<li><code>BooleanBinaryOperation</code></li>
+<li><code>Not</code></li>
+</ul>
+<hr>
+<h2 id="integer--bytes-unary--binary-expressions"><a class="header" href="#integer--bytes-unary--binary-expressions">Integer / Bytes Unary &amp; Binary Expressions</a></h2>
+<ul>
+<li><code>UInt64UnaryOperation</code></li>
+<li><code>UInt64PostfixUnaryOperation</code></li>
+<li><code>BigUIntPostfixUnaryOperation</code></li>
+<li><code>BytesUnaryOperation</code></li>
+<li><code>UInt64BinaryOperation</code></li>
+<li><code>BigUIntBinaryOperation</code></li>
+<li><code>BytesBinaryOperation</code></li>
+</ul>
+<hr>
+<h2 id="call--library-expressions"><a class="header" href="#call--library-expressions">Call / Library Expressions</a></h2>
+<ul>
+<li><code>SubroutineCallExpression</code></li>
+<li><code>PuyaLibCall</code></li>
+</ul>
+<hr>
+<h2 id="subroutines--contracts-root-nodes"><a class="header" href="#subroutines--contracts-root-nodes">Subroutines &amp; Contracts (Root Nodes)</a></h2>
+<ul>
+<li><code>Subroutine</code> (implements <code>Function</code>, <code>RootNode</code>)</li>
+<li><code>ContractMethod</code> (implements <code>Function</code>, <code>ContractMemberNode</code>)</li>
+<li><code>AppStorageDefinition</code> (implements <code>ContractMemberNode</code>)</li>
+<li><code>LogicSignature</code> (implements <code>RootNode</code>)</li>
+<li><code>Contract</code> (implements <code>RootNode</code>)</li>
+</ul>
+<hr>
+<h1 id="appendix-output-reading-guide"><a class="header" href="#appendix-output-reading-guide">Appendix: Output reading guide</a></h1>
+<!-- TODO: complete with non-json AWST output reading pointers --><div style="break-before: page; page-break-before: always;"></div>
+<h1 id="intermediate-representation-ir-layer"><a class="header" href="#intermediate-representation-ir-layer">Intermediate Representation (IR) layer</a></h1>
+<p>The IR layer does a lot of the heavier lifting in the Puya compiler. It transforms the AWST into an SSA form and builds a control flow graph at the same time (where nodes in the graph are <code>BasicBlock</code>s). It then performs an extensive set of varyingly complex optimizations, before going through <a href="#ssa-destructuring">destructuring</a> (“coming out” of SSA form, where <code>PhiNode</code>s are resolved), and finally performing another set of pos-destructure optimizations.</p>
+<h2 id="lowering-from-awst"><a class="header" href="#lowering-from-awst">Lowering from AWST</a></h2>
+<p>TODO: IR main until we get to the building main
+(logicsig vs. contract build, embedded subroutines, etc.)</p>
+<p>The following is a schematic full IR diagram, that shows the process from AWST to the final IR stage.</p>
+<!-- TODO: turn into diagram! -->
+<p>AWST =&gt; build IR (unbound) subroutines (embedded, user) =&gt;
+build contract / logic_sig IR =&gt;
+transform IR:
+Pipeline goes optimize program =&gt; lower aggregate IR =&gt; optimize program =&gt; slot elimination =&gt; destructuring =&gt; post-destructure validations (validate module artifact)</p>
+<!-- TODO: completar con todo lo de IR 2 TEAL -->
+<h2 id="function-builder-and-the-build-body-entrypoint"><a class="header" href="#function-builder-and-the-build-body-entrypoint">Function Builder and the build body “entrypoint”</a></h2>
+<h2 id="braun-et-al-ssa-construction"><a class="header" href="#braun-et-al-ssa-construction">Braun et. al. SSA construction</a></h2>
+<!-- TODO: link to reference impl. BraunSSA -->
+<!-- TODO: cite with footnotes -->
+<p>In order to build a control flow graph and SSA form directly from the AWST, we employ the Braun SSA construction algorithm.<br>It differs from the classical SSA form construction in that it does not need pre-processing, <code>Phi</code> nodes are inserted lazily as needed, and by the end of the build pass we have both a control flow graph (with <code>BasicBlock</code>s as nodes) and a program in SSA form, both ready to be optimized before the <a href="#ssa-destructuring">destructuring pass</a>.\</p>
+<p>In order to do this, we need to keep track of:</p>
+<ul>
+<li>the set $sB$ of sealed blocks (basic blocks whose instructions have been visited, that have already been constructed and finished with a terminator).</li>
+<li>for each variable found, a set to its <code>Register</code>s (see below) mapped to the <code>BasicBlock</code> in which the variable version was defined. These are all grouped under the variable <em>Identifier</em>, which may be modeled as a simple unique string.</li>
+</ul>
+<!-- TODO: explain -->
+<ul>
+<li>the set of “incomplete” <code>Phi</code> nodes per <code>BasicBlock</code>, $phi_B$</li>
+<li>a set of variable versions, mappping variable identifiers to simple unsigned integers representing versioning, $v_n$ (where $n$ is an unsigned integer, these will be assigned sequentially).</li>
+</ul>
+<p>We make extensive use here of the <code>Register</code> construct. A register is an abstraction that models local variable storage, and will be resolved further down the pipeline to a <a href="TODO_LINK_Algospecs">stack location</a> or <a href="TODO_LINK_Algospecs">scratch space</a> (see the <a href="#memory-intermediate-representation-mir-layer">MIR</a> section for more details on materialising abstract register allocation).<br><code>Register</code> nodes have an associated <code>name</code> and <code>version</code> number, and are usually represented in output as <code>{name}#{version}</code> (using the <code>#</code> symbol as a separator).</p>
+<h3 id="trivial-phi"><a class="header" href="#trivial-phi">Trivial <code>Phi</code></a></h3>
+<p>A <code>Phi</code> node is said to be trivial if it references <em>at most</em> one value other than self.</p>
+<h3 id="builder-full-reference"><a class="header" href="#builder-full-reference">Builder full reference</a></h3>
+<h3 id=""><a class="header" href="#"></a></h3>
+<h4 id="bytesbinaryoperation"><a class="header" href="#bytesbinaryoperation"><code>BytesBinaryOperation</code></a></h4>
+<p>add =&gt; concat</p>
+<p>bit_and =&gt;</p>
+<h2 id="array-lowering"><a class="header" href="#array-lowering">Array lowering</a></h2>
+<h2 id="ssa-construction-braun-algorithm"><a class="header" href="#ssa-construction-braun-algorithm">SSA construction: Braun Algorithm</a></h2>
+<h2 id="implementation-details"><a class="header" href="#implementation-details">Implementation details</a></h2>
+<p>The following diagram shows the transformation pipeline schematically.</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[Start: get_transform_pipeline]
+
+    B[_optimize_program_ir&lt;br/&gt;qualifier="ssa.opt"&lt;br/&gt;artifact_ir]
+    C[_lower_aggregate_ir&lt;br/&gt;ref]
+    D[_optimize_program_ir&lt;br/&gt;qualifier="ssa.array.opt"&lt;br/&gt;artifact_ir]
+    E[slot_elimination&lt;br/&gt;ref]
+    F[destructure_ssa]
+
+    A --&gt; B --&gt; C --&gt; D --&gt; E --&gt; F
+</code></pre>
+<p>After building the IR, the <em>transform pipeline</em> is as follows:</p>
+<pre><code class="language-python">def get_transform_pipeline(
+    artifact_ir: ModuleArtifact,
+) -&gt; list[Callable[[ArtifactCompileContext, Program], None]]:
+    ref = artifact_ir.metadata.ref
+    return [
+        functools.partial(_optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.opt"),
+        functools.partial(_lower_aggregate_ir, ref=ref),
+        functools.partial(
+            _optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.array.opt"
+        ),
+        functools.partial(slot_elimination, ref=ref),
+        destructure_ssa,
+    ]
+</code></pre>
+<p>In other words, the pipeline does IR level optimization, aggregate lowering,
+another full optimization pass (same opts.), then specifically slot elimination,
+and finally destructuring.</p>
+<h1 id="optimizations-performed"><a class="header" href="#optimizations-performed">Optimizations performed</a></h1>
+<p>At this level, we define a subroutine as “trivial” if:</p>
+<ul>
+<li>it has a single basic block,</li>
+<li>it has <em>at most</em> one instruction, and</li>
+<li>no phi instructions</li>
+</ul>
+<h2 id="subroutine-inlining"><a class="header" href="#subroutine-inlining">Subroutine inlining</a></h2>
+<blockquote>
+<p>[INFO!] this will only run in optimization level O2. This is because it may tamper with error comment locations.</p>
+</blockquote>
+<p>TODO: a redundant IF here? (L:157)</p>
+<h2 id="split-parallel-copies"><a class="header" href="#split-parallel-copies">Split parallel copies</a></h2>
+<h2 id="constant-replacer"><a class="header" href="#constant-replacer">Constant replacer</a></h2>
+<h2 id="copy-propagation"><a class="header" href="#copy-propagation">Copy propagation</a></h2>
+<h2 id="itxn-field-calls-elision"><a class="header" href="#itxn-field-calls-elision">Itxn field calls elision</a></h2>
+<h2 id="remove-unused-variables"><a class="header" href="#remove-unused-variables">Remove unused variables</a></h2>
+<h2 id="simplify-intrinsics"><a class="header" href="#simplify-intrinsics">Simplify intrinsics</a></h2>
+<h2 id="replace-itxn-fields"><a class="header" href="#replace-itxn-fields">Replace Itxn Fields</a></h2>
+<h2 id="replace-compiled-references"><a class="header" href="#replace-compiled-references">Replace Compiled references</a></h2>
+<h2 id="simplify-control-ops"><a class="header" href="#simplify-control-ops">Simplify control ops.</a></h2>
+<h2 id="merge-blocks"><a class="header" href="#merge-blocks">Merge blocks</a></h2>
+<h2 id="remove-linear-jumps"><a class="header" href="#remove-linear-jumps">Remove linear jumps</a></h2>
+<h2 id="remove-unreachable-blocks-dce"><a class="header" href="#remove-unreachable-blocks-dce">Remove unreachable blocks (DCE)</a></h2>
+<h2 id="repeated-expression-elimination-rce"><a class="header" href="#repeated-expression-elimination-rce">Repeated Expression Elimination (RCE)</a></h2>
+<p>The main loop of RCE goes like this:</p>
+<pre><code class="language-python">def repeated_expression_elimination(
+    context: CompileContext, subroutine: models.Subroutine
+) -&gt; bool:
+    start, dom_tree = compute_dominator_tree(subroutine)
+    modified = False
+    while _recursive_rce(dom_tree, start, const_intrinsics={}, asserted=set()):
+        modified = True
+        copy_propagation(context, subroutine)
+    return modified
+</code></pre>
+<p>We first start by computing the dominator tree (see annex).
+We get as a result an entry basic block <code>start</code> (by definition it dominates every other bb),
+and a <code>dom_tree</code> which is a mapping of basic blocks to lists of basic blocks dominated by them.
+In other words, we get:\</p>
+<!-- TODO: diagram -->
+<h2 id="encode-decode-pair-elimination"><a class="header" href="#encode-decode-pair-elimination">Encode-Decode pair elimination</a></h2>
+<h2 id="merge-chained-aggregate-reads"><a class="header" href="#merge-chained-aggregate-reads">Merge chained aggregate reads</a></h2>
+<h2 id="replace-aggregate-box-ops"><a class="header" href="#replace-aggregate-box-ops">Replace aggregate box ops.</a></h2>
+<h2 id="minimize-box-exist-asserts"><a class="header" href="#minimize-box-exist-asserts">Minimize box exist asserts</a></h2>
+<h2 id="constant-reads-and-unobserved-writes-elimination"><a class="header" href="#constant-reads-and-unobserved-writes-elimination">Constant reads and unobserved writes elimination</a></h2>
+<!-- this "opt." is only performed after all IR lowerings but BEFORE SSA destructuring -->
+<h2 id="slot-elimination"><a class="header" href="#slot-elimination">Slot elimination</a></h2>
+<p>TODO: explain</p>
+<h2 id="ssa-destructuring"><a class="header" href="#ssa-destructuring">SSA Destructuring</a></h2>
+<h1 id="validations-performed-1"><a class="header" href="#validations-performed-1">Validations performed</a></h1>
+<p>TODO: intro text</p>
+<h2 id="subroutine-validation-with-ssa"><a class="header" href="#subroutine-validation-with-ssa"><code>Subroutine</code> validation (with SSA)</a></h2>
+<h2 id="validate-with-ssa"><a class="header" href="#validate-with-ssa">Validate with SSA</a></h2>
+<p>Basic SSA validation. For each basic block in the subroutine, we collect all assigned registers into a set. This encompasses registers that are target of an <code>Assignment</code>, and registers assigned to a <code>phi</code> node.\</p>
+<p>If at any point we find a repeat, that means a basic SSA property is broken (a register is assigned twice) and therefore an <code>InternalError</code> is raised as the IR is in an invalid state.</p>
+<h2 id="after-destructuring"><a class="header" href="#after-destructuring">After <a href="#ssa-destructuring">destructuring</a></a></h2>
+<p>TODO: all validators here (from IR/validate)</p>
+<h1 id="validate-module-artifact-pos-destructuring-validation"><a class="header" href="#validate-module-artifact-pos-destructuring-validation">Validate module artifact (pos-destructuring validation)</a></h1>
+<!-- for validator_cls in (
+        OpRunModeValidator,
+        MinAvmVersionValidator,
+        ITxnResultFieldValidator,
+        CompileReferenceValidator,
+        SlotReservationValidator,
+        NoInfiniteLoopsValidator, -->
+<!-- TODO: link to code for this -->
+<h2 id="op-run-mode-validator"><a class="header" href="#op-run-mode-validator">Op run mode validator</a></h2>
+<p>Very simple instruction-by-instruction visitor based validator. Given an <code>artifact</code>, be it a <code>LogicSignature</code> or a <code>Contract</code>.</p>
+<p>Every single op is visited (note that, by virtue of our node structure, only <code>Intrinsic</code> operations need to be considered in this analysis), and a validation of the run mode the instruction is allowed to run in is performed.</p>
+<p>Any conflict between the artifact type and the run mode of an instruction used in it here causes a failed validation and compilation error.
+(TODO: link code)</p>
+<h2 id="min-avm-version-validator"><a class="header" href="#min-avm-version-validator">min avm version validator</a></h2>
+<p>Instruction by instruction visitor based validator.<br>We take the program avm version (version declared at the beginning of the program with a <code>#pragma version</code> instruction, see TODOLINKSPECS).<br>Similarly, each visited instruction has a version in which it was introduced. If this minimum AVM version that supports the given op. is higher than the program declared version…
+TODO: finish
+TODO: comment on variants!
+TODO: link code</p>
+<h2 id="itxn-result-field-validator"><a class="header" href="#itxn-result-field-validator">itxn result field validator</a></h2>
+<p>TODO: how do we know its not constant here?</p>
+<h2 id="compile-reference-validator"><a class="header" href="#compile-reference-validator">compile reference validator</a></h2>
+<h2 id="slot-reservation-validator"><a class="header" href="#slot-reservation-validator">slot reservation validator</a></h2>
+<h2 id="infinite-loop-detector-validation"><a class="header" href="#infinite-loop-detector-validation">Infinite loop detector validation</a></h2>
+<pre><code class="language-py">class NoInfiniteLoopsValidator(DestructuredIRValidator):
+    @typing.override
+    def visit_block(self, block: models.BasicBlock) -&gt; None:
+        assert block.terminator is not None, "unterminated block found during IR validation"
+        if block.terminator.unique_targets == [block]:
+            logger.error(
+                "infinite loop detected",
+                location=block.terminator.source_location or block.source_location,
+            )
+</code></pre>
+<p>This validation pass checks that each basic block has a terminator, and that the target block for the terminator is <em>not</em> uniquely itself, as that would constitute a very simple case of an infinite loop.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Infinite loops don’t make sense in the AVM architecture, as they would just consistently run out of budget, reverting any state changes they may attempt and wasting computation.
+TODO: what about an use case for programs not meant to be run but only simulated (e.g. Algoland Tasos example)</p>
+</blockquote>
+<h1 id="full-models-reference"><a class="header" href="#full-models-reference">Full models reference</a></h1>
+<p>The following diagram shows the full model class hierarchy, grouping concrete nodes by their abstract parent classes.</p>
+<pre><code class="language-mermaid">classDiagram
+direction TB
+
+class Context {
+  &lt;&lt;protocol&gt;&gt;
+  +source_location: SourceLocation | None
+}
+
+class IRVisitable {
+  &lt;&lt;abstract&gt;&gt;
+  +accept(visitor: IRVisitor[T]) T
+}
+
+class _Freezable {
+  &lt;&lt;abstract&gt;&gt;
+  +freeze() object
+  #_frozen_data() object
+}
+
+IRVisitable ..|&gt; Context
+IRVisitable ..|&gt; _Freezable
+
+class ValueProvider {
+  &lt;&lt;abstract&gt;&gt;
+  +source_location: SourceLocation | None
+  +types: Sequence[IRType]
+}
+ValueProvider --|&gt; IRVisitable
+
+class Value {
+  &lt;&lt;abstract&gt;&gt;
+  +ir_type: IRType
+  +atype: AVMType (uint64|bytes)
+  +types: Sequence[IRType]
+}
+Value --|&gt; ValueProvider
+
+class Constant {
+  &lt;&lt;abstract&gt;&gt;
+}
+Constant --|&gt; Value
+
+class Undefined
+Undefined --|&gt; Value
+
+class Register {
+  +name: str
+  +version: int
+  +local_id: str
+}
+Register --|&gt; Value
+
+class Parameter {
+  +implicit_return: bool
+}
+Parameter --|&gt; Register
+
+class TemplateVar {
+  +name: str
+  +ir_type: IRType
+}
+TemplateVar --|&gt; Value
+
+class UInt64Constant {
+  +value: int
+  +teal_alias: str | None
+  +ir_type: IRType
+}
+UInt64Constant --|&gt; Constant
+
+class ITxnConstant {
+  +value: int
+  +ir_type: IRType
+}
+ITxnConstant --|&gt; Constant
+
+class SlotConstant {
+  +value: int
+  +ir_type: SlotType
+}
+SlotConstant --|&gt; Constant
+
+class BigUIntConstant {
+  +value: int
+  +ir_type: IRType
+}
+BigUIntConstant --|&gt; Constant
+
+class BytesConstant {
+  +value: bytes
+  +encoding: AVMBytesEncoding
+  +ir_type: IRType
+}
+BytesConstant --|&gt; Constant
+
+class AddressConstant {
+  +value: str
+  +ir_type: IRType
+}
+AddressConstant --|&gt; Constant
+
+class MethodConstant {
+  +value: str
+  +ir_type: IRType
+}
+MethodConstant --|&gt; Constant
+
+class CompiledContractReference {
+  +artifact: ContractReference
+  +field: TxnField
+  +template_variables: Mapping[str, Value]
+  +program_page: int | None
+}
+CompiledContractReference --|&gt; Value
+
+class CompiledLogicSigReference {
+  +artifact: LogicSigReference
+  +template_variables: Mapping[str, Value]
+}
+CompiledLogicSigReference --|&gt; Value
+
+class Op {
+  &lt;&lt;abstract&gt;&gt;
+}
+Op --|&gt; IRVisitable
+
+class ControlOp {
+  &lt;&lt;abstract&gt;&gt;
+  +source_location: SourceLocation | None
+  +targets() Sequence[BasicBlock]
+  +unique_targets: list[BasicBlock]
+  +replace_target(find: BasicBlock, replace: BasicBlock)
+}
+ControlOp --|&gt; IRVisitable
+
+class PhiArgument {
+  +value: Register
+  +through: BasicBlock
+}
+PhiArgument --|&gt; IRVisitable
+
+class Phi {
+  +register: Register
+  +args: list[PhiArgument]
+}
+Phi --|&gt; IRVisitable
+
+class Intrinsic {
+  +op: AVMOp
+  +immediates: list[str|int]
+  +args: list[Value]
+  +error_message: str | None
+  +types: Sequence[IRType]
+}
+Intrinsic --|&gt; Op
+Intrinsic --|&gt; ValueProvider
+
+class InvokeSubroutine {
+  +target: Subroutine
+  +args: list[Value]
+  +types: Sequence[IRType]
+}
+InvokeSubroutine --|&gt; Op
+InvokeSubroutine --|&gt; ValueProvider
+
+class ValueTuple {
+  +values: list[Value]
+  +ir_type: TupleIRType
+  +types: Sequence[IRType]
+}
+ValueTuple --|&gt; ValueProvider
+
+class Assignment {
+  +targets: list[Register]
+  +source: ValueProvider
+  +source_location: SourceLocation | None
+}
+Assignment --|&gt; Op
+
+class InnerTransactionField {
+  +field: str
+  +group_index: Value
+  +is_last_in_group: Value
+  +array_index: Value | None
+  +type: IRType
+}
+InnerTransactionField --|&gt; ValueProvider
+
+class ArrayLength {
+  +base: Value
+  +base_type: IRType
+  +array_encoding: ArrayEncoding
+}
+ArrayLength --|&gt; ValueProvider
+
+class _Aggregate {
+  &lt;&lt;abstract&gt;&gt;
+  +base: Value
+  +base_type: EncodedType
+  +indexes: tuple[int|Value, ...]
+}
+_Aggregate --|&gt; ValueProvider
+
+class ExtractValue {
+  +check_bounds: bool
+  +ir_type: IRType
+}
+ExtractValue --|&gt; _Aggregate
+
+class ReplaceValue {
+  +value: Value
+  +types: Sequence[IRType]
+}
+ReplaceValue --|&gt; _Aggregate
+
+class BoxRead {
+  +key: Value
+  +value_type: IRType
+  +exists_assertion_message: str
+}
+BoxRead --|&gt; ValueProvider
+
+class BoxWrite {
+  +key: Value
+  +value: Value
+  +delete_first: bool
+  +source_location: SourceLocation | None
+}
+BoxWrite --|&gt; Op
+
+class BytesEncode {
+  +encoding: Encoding
+  +values: list[Value]
+  +values_type: IRType|TupleIRType
+  +error_message_override: str | None
+}
+BytesEncode --|&gt; ValueProvider
+
+class DecodeBytes {
+  +encoding: Encoding
+  +value: Value
+  +ir_type: IRType|TupleIRType
+  +error_message_override: str | None
+}
+DecodeBytes --|&gt; ValueProvider
+
+class NewSlot {
+  +ir_type: SlotType
+}
+NewSlot --|&gt; ValueProvider
+
+class ReadSlot {
+  +slot: Value  %% (validated SlotType)
+}
+ReadSlot --|&gt; ValueProvider
+
+class WriteSlot {
+  +slot: Value  %% (validated SlotType)
+  +value: Value
+  +source_location: SourceLocation | None
+}
+WriteSlot --|&gt; Op
+
+class Assert {
+  +condition: Value
+  +message: str | None
+  +explicit: bool
+  +source_location: SourceLocation | None
+}
+Assert --|&gt; Op
+
+class BasicBlock {
+  +source_location: SourceLocation
+  +phis: list[Phi]
+  +ops: list[Op]
+  +terminator: ControlOp | None
+  +id: int | None
+  +label: str | None
+  +comment: str | None
+}
+BasicBlock ..|&gt; Context
+
+class ConditionalBranch {
+  +condition: Value
+  +non_zero: BasicBlock
+  +zero: BasicBlock
+}
+ConditionalBranch --|&gt; ControlOp
+
+class Goto {
+  +target: BasicBlock
+}
+Goto --|&gt; ControlOp
+
+class GotoNth {
+  +value: Value
+  +blocks: list[BasicBlock]
+  +default: BasicBlock
+}
+GotoNth --|&gt; ControlOp
+
+class Switch {
+  +value: Value
+  +cases: dict[Value, BasicBlock]
+  +default: BasicBlock
+}
+Switch --|&gt; ControlOp
+
+class SubroutineReturn {
+  +result: list[Value]
+}
+SubroutineReturn --|&gt; ControlOp
+
+class ProgramExit {
+  +result: Value
+}
+ProgramExit --|&gt; ControlOp
+
+class Fail {
+  +error_message: str | None
+  +explicit: bool
+}
+Fail --|&gt; ControlOp
+
+class Subroutine {
+  +id: str
+  +short_name: str
+  +source_location: SourceLocation | None
+  +parameters: Sequence[Parameter]
+  +_returns: Sequence[IRType]
+  +body: list[BasicBlock]
+  +inline: bool | None
+  +is_routing_wrapper: bool
+  +pure: bool
+}
+Subroutine ..|&gt; Context
+
+class Program {
+  +kind: ProgramKind
+  +main: Subroutine
+  +subroutines: Sequence[Subroutine]
+  +avm_version: int
+  +slot_allocation: SlotAllocation
+  +source_location: SourceLocation | None
+}
+Program ..|&gt; Context
+
+class Contract {
+  +source_location: SourceLocation
+  +approval_program: Program
+  +clear_program: Program
+  +metadata: ContractMetaData
+}
+Contract ..|&gt; Context
+
+class LogicSignature {
+  +source_location: SourceLocation
+  +program: Program
+  +metadata: LogicSignatureMetaData
+}
+LogicSignature ..|&gt; Context
+
+class ModuleArtifact {
+  &lt;&lt;union&gt;&gt;
+  Contract | LogicSignature
+}
+
+class SlotAllocationStrategy {
+  &lt;&lt;enumeration&gt;&gt;
+  none
+  dynamic
+}
+
+class SlotAllocation {
+  +reserved: Set[int]
+  +strategy: SlotAllocationStrategy
+}
+
+%% Useful type alias (not a class in runtime)
+class MultiValue {
+  &lt;&lt;type alias&gt;&gt;
+  Value | ValueTuple
+}
+</code></pre>
+<h2 id="phi"><a class="header" href="#phi">Phi</a></h2>
+<!-- TODO: complete reference -->
+<h1 id="appendix-puya-library-embedded-functions"><a class="header" href="#appendix-puya-library-embedded-functions">Appendix: Puya library (embedded functions)</a></h1>
+<!-- TODO: complete --><div style="break-before: page; page-break-before: always;"></div>
+<h1 id="memory-intermediate-representation-mir-layer"><a class="header" href="#memory-intermediate-representation-mir-layer">Memory Intermediate Representation (MIR) layer</a></h1>
+<p>Up to this point, all allocations are <em>abstract</em> (see the <a href="#full-models-reference">relevant nodes in IR</a>) (not counting allocations explicitly defined by the user TODO: example).
+In this layer, these <em>abstract</em> allocations are made concrete by simulation and analysis of stack usage.</p>
+<!-- In order to make the best possible usage of the native AVM stack [TODO: LINK to research] is used. -->
+<p>The general idea of this layer is the introduction of 3 logical stack regions, according to their relation to the overall control flow structure of the program.</p>
+<p>The <code>l-stack</code> is, conceptually, the stack region used for intra-block allocations.<br>The <code>x-stack</code> is the stack region used for inter-block allocations.<br>Finally, the <code>f-stack</code> is used for the frame region (<a href="TODO_link_to_specs_AVM_section">explicit in the AVM</a>). It is created in the entry block for each subroutine and maintained constant throughout the rest of basic blocks.</p>
+<p>The following document attempts an exhaustive explanation of lowering from IR to MIR, stack allocation building, optimizations and validations performed at this step up to the output representation, that will be the input of the following <a href="#teal-layer-avm-code-or-final-lowering">TEAL</a> layer.</p>
+<!-- Having this region preserved in the stack is useful for most allocations that don't fit any of the other two regions.
+TODO: improve explanation of f-stack -->
+<h1 id="mir-main-algorithm"><a class="header" href="#mir-main-algorithm">MIR main algorithm</a></h1>
+<p>The following diagram shows the MIR pipeline schematically.</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[Start] --&gt; B[lower_main_to_mir(IRProgram main)]
+    B --&gt; C[Iterate IRProgram subroutines]
+    C --&gt; D[lower_subroutine_to_mir(s)]
+    D --&gt; C
+
+    C --&gt; E{slot_allocation_strategy == dynamic?}
+    E -- Yes --&gt; F[Add special slot allocation subroutine]
+    E -- No --&gt; G[Skip]
+
+    F --&gt; H[Construct MIR.Program(kind, main, subroutines, slot_alloc)]
+    G --&gt; H
+
+    H --&gt; I[Apply globalStackAllocation(result)]
+    I --&gt; J[Return result]
+</code></pre>
+<blockquote>
+<p>Link to reference implementation <a href="TODO_LINK">here</a>.</p>
+</blockquote>
+<p>In the <a href="#ir--mir-lowering">building phase</a>, each subroutine in the IR <a href="#full-models-reference"><code>Program</code></a> input is lowered, starting with main as a special case.<br>Then each non-main subroutine is built.<br>At the end of the building process, and only in the case of <code>slot allocation strategy</code> set to <code>dynamic</code>, we build the slot allocation and append a special slot building subroutine at the end of the subroutine list.</p>
+<p>Finally, the <code>global stack allocation</code> algorithm is performed, constructing each stack region according to the required optimization level, and materialising all <code>AbstractLoad</code> and <code>AbstractStore</code> operations in the process.</p>
+<p>After this, we get the final output ready to continue down the pipeline to the <a href="#teal-layer-avm-code-or-final-lowering">TEAL</a> stage.</p>
+<h1 id="ir--mir-lowering"><a class="header" href="#ir--mir-lowering">IR =&gt; MIR lowering</a></h1>
+<h2 id="slot-allocation-strategy"><a class="header" href="#slot-allocation-strategy">Slot allocation strategy</a></h2>
+<p>TODO: slot allocation expl. goes here</p>
+<h1 id="the-stack-visitor"><a class="header" href="#the-stack-visitor">The Stack visitor</a></h1>
+<p>The stack visitor is a visitor that processes ops and subsequently builds a stack with its regions explicitly. It applies the effects of the visiting op into the l-stack.</p>
+<p>TODO: explain</p>
+<h1 id="global-stack-allocation"><a class="header" href="#global-stack-allocation">Global Stack Allocation</a></h1>
+<p>TODO: pseudocode</p>
+<pre><code class="language-python">GlobalStackAllocation(Program P)
+    for Subroutine s in P: #note that this includes main as well as every other subroutine
+        if opt level is O0:
+            lstack(s)
+            fstack(s)
+        else:
+            lstack(s)
+            peepholeOptimizationPass(s)
+            xstack(s)
+            peepholeOptimizationPass(s)
+            fstack(s)
+            peepholeOptimizationPass(s)
+</code></pre>
+<!-- 
+def global_stack_allocation(ctx: ProgramMIRContext, program: models.Program) -> None:
+    for desc, (method, min_opt_level) in {
+        "lstack": (l_stack_allocation, 0),
+        "lstack.opt": (peephole_optimization_single_pass, 1),
+        "xstack": (x_stack_allocation, 1),
+        "xstack.opt": (peephole_optimization_single_pass, 1),
+        "fstack": (f_stack_allocation, 0),
+        "fstack.opt": (peephole_optimization_single_pass, 1),
+    }.items():
+        if ctx.options.optimization_level < min_opt_level:
+            continue
+        for mir_sub in program.all_subroutines:
+            method(ctx, mir_sub)
+        if ctx.options.output_memory_ir:
+            output_memory_ir(ctx, program, qualifier=desc)
+    if ctx.options.output_memory_ir:
+        output_memory_ir(ctx, program, qualifier="") -->
+<p>(…)
+After MIR building has taken place and slot allocations have been solved, global stack allocation is performed. This processing step performs several optimizations and builds L-, X- and F- stacks (according to optimization flags).<br>In the <code>O0</code> level, only L-Stack and F-Stack are built, and no optimization passes are performed.
+In any other optimization level (<code>O1</code> or <code>O2</code>), every stack region allocations are built in the order seen in the algorithm, which is the order in which the regions “stack” on top of each other in the final model of the Stack (note a pass of peephole optimizations is performed after each one).</p>
+<h2 id="the-l-stack"><a class="header" href="#the-l-stack">The L-stack</a></h2>
+<p>The L-stack allocations are built by applying <a href="TODO:LINK">Koopman’s algorithm</a>.
+At a high level, this is the region of the stack responsible for intra-block allocation, and will attempt to materialize some abstract storage operations as <a href="#local-variable-l-stack-ops"><code>LStackLoad</code></a> and <code>LStackStore</code> ops.</p>
+<p>(TODO: pseudocode impl -very similar to python impl)</p>
+<ul>
+<li>For each basic block in every subroutine, we find usage pairs (see definition below).
+Then, for each usage pair, we copy the first element (a define or a use) to the bottom of the l-stack.</li>
+</ul>
+<p>insert_index = a_index if isinstance(a, mir.AbstractStore) else a_index + 1
+Copy usage pairs…
+Then dead store removal pass.</p>
+<h2 id="deadstore-removal"><a class="header" href="#deadstore-removal">Deadstore removal</a></h2>
+<p>TODO: pseudocode deadstore removal</p>
+<p>TODO: high level desc.</p>
+<p>We define a dead store as a store for a variable (identified by local id $ID$) that is not alive at the exit of the block.
+TODO: EXAMPLE</p>
+<p>Firstly, we perform Variable Lifetime Analysis for the given subroutine. Then, for each basic block in the subroutine body, we loop through every op.
+We take an analysis window of two ops (i.e. we analyze them in consecutive pairs) for every LStack Store.</p>
+<!-- def _dead_store_removal(sub: mir.MemorySubroutine) -> None:
+    vla = VariableLifetimeAnalysis(sub)
+    for block in sub.body:
+        ops = block.mem_ops
+        op_idx = 0
+        while op_idx < len(ops) - 1:
+            window = slice(op_idx, op_idx + 2)
+            a, b = ops[window]
+            # StoreLStack is used to:
+            #   1.) create copy of the value to be immediately stored via virtual store
+            #   2.) rotate the value to the bottom of the stack for use in a later op in this block
+            # If it is a dead store, then the 1st scenario is no longer needed
+            # and instead just need to ensure the value is moved to the bottom of the stack
+            if isinstance(a, mir.StoreLStack):
+                if a.copy and vla.is_dead_store(b):
+                    a = attrs.evolve(a, copy=False, produces=())
+                    ops[window] = (a,)
+            elif (
+                (isinstance(a, mir.LoadLStack) and not a.copy)
+                and (isinstance(b, mir.StoreLStack) and b.copy)
+                and a.local_id == b.local_id
+            ):
+                a = attrs.evolve(
+                    a,
+                    copy=True,
+                    produces=(f"{a.local_id} (copy)",),
+                )
+                ops[window] = (a,)
+            op_idx += 1 -->
+<p>If opt level &gt;= 1, implicit store removal.\</p>
+<h2 id="implicit-store-removal-optimization"><a class="header" href="#implicit-store-removal-optimization">Implicit store removal optimization</a></h2>
+<p>In IR terms, an operation is assigned to a temp, which then is immediately assigned to another variable.
+We may eliminate the temp intermediate step.</p>
+<p>This is carried away in a peephole fashion. For each op in a basic block that produces any L-stack output, we take a window equal to the ops. output production size (length of the <code>produces</code> field).
+If every one of these subsequent ops. inside the window immediately following the selected op.:</p>
+<ol>
+<li>are L-stack load no-copy operations (i.e. stack rotations), and</li>
+<li>are exactly equal to the list of produced local ids <em>reversed</em>.
+Then, all the ops in the analysis window are eliminated.</li>
+</ol>
+<p>Finally, _calculate_load_depths (once l-stack allocations are finished)</p>
+<h2 id="load-depths-calculation"><a class="header" href="#load-depths-calculation">Load depths calculation</a></h2>
+<p>Now that all L-stack allocations are finished, we may compute load depths.
+First instantiate a <a href="TODO:LINK">Stack visitor</a>.
+Then, iterate on each op of each basic block in the given subroutine.
+The StackVisitor will keep track of l-stack effects for each visited op. At this stage, we don’t have to worry about any other stack regions but L.
+<!-- local_id_index = stack.l_stack.index(op.local_id)
+                block.mem_ops[idx] = attrs.evolve(
+                    op, depth=len(stack.l_stack) - local_id_index - 1
+                ) -->
+Whenever we iterate over a LoadLStack, and before visiting the operation with the StackVisitor, we
+set its depth. Given the current length of the l-stack being constructed by the visitor, and the index at which the local id being stored to appears on the l-stack, we set the depth feld in the <code>LoadLStack</code> to be:</p>
+<p>$depth = |partial \ l-stack| - index - 1$.</p>
+<p>TODO: explain WHY</p>
+<p>TODO: explain this better but main algo is these steps
+<!-- # the following is basically koopmans algorithm
+    # done as part of http://www.euroforth.org/ef06/shannon-bailey06.pdf
+    # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
+    for block in sub.body:
+        usage_pairs = _find_usage_pairs(block)
+        _copy_usage_pairs(block, usage_pairs)
+    _dead_store_removal(sub)
+    if ctx.options.optimization_level:
+        _implicit_store_removal(sub)
+    # calculate load depths now that l-stack allocations are done
+    _calculate_load_depths(sub) --></p>
+<p>In order to build the l-stack, we define a <code>UsagePair</code> as a tuple where the first element is an <code>AbstractLoad</code> or an <code>AbstractStore</code>, and the second element is always an <code>AbstractLoad</code> referencing the same variable.<br>In other words, a <code>UsagePair</code> models, in terms of the MIR, a <code>use-&gt;use</code> or <code>def-&gt;use</code> chain.
+<code>(mir.AbstractLoad | mir.AbstractStore, mir.AbstractLoad)</code>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>See <code>/mnt/c/Users/x/Desktop/Puya_learning/puya/src/puya/mir/stack_allocation/l_stack.py</code>
+In this implementation, we first construct a mapping of local_ids (variable identifier at this stage) to (index, op) tuples, where op is an abstract load or store. Then we take the tuples for a given variable in consecutive pairs and compute their sorting keys.</p>
+</blockquote>
+<p>For each basic block in the program, consider an ordered list of usage pairs, $L_{u}$.
+Note that for any entry (u_1, u_2) on this list, u_1 comes strictly before u_2, and therefore the intra-basic block index of u_1, i(u_1) will always be such that $i(u_1) &lt; i(u_2)$.
+We compute this list using the following sorting criteria:</p>
+<ul>
+<li>for each pair u_1=&gt;u_2, we compute the amount of instructions between u_1 and u_2. Then we sort the pairs in ascending order of this number;</li>
+<li>when tied, we break the tie by the intra-basic block index of the u_1 instruction;</li>
+<li>when tied, we break the tie by the intra-basic block index of the u_2 instruction.</li>
+</ul>
+<p>A visitor is defined, LStackHeight, in order to compute the L-stack height in between ops of a usage pair. Note that stack depths are “simple” to compute here, as the L-stack is the first region to be allocated, therefore no x- or f- stacks are present.</p>
+<p>When applying this visitor to a basic block, a couple validations are performed:</p>
+<ul>
+<li>any x or f stack load or store operation should fail,</li>
+<li>for any ops consuming values, the depth of the stack should be greater or equal than the amount of consumed vals. otherwise this basic block is in an unavoidable invalid stack state.<br>The visitor consumes keeps track of depth, doing depth += #consumed - #produced for each visited op (save for load_l_stack() as an exception, which when copying produces an extra value).</li>
+</ul>
+<p>TODO: this is an impl. detail</p>
+<pre><code class="language-py">@typing.override
+    def visit_load_l_stack(self, load: mir.LoadLStack) -&gt; None:
+        if load.copy:
+            self.depth += 1
+</code></pre>
+<p>WHY is there not the same for store_l_stack? Can I run into a load when visiting but not a store?</p>
+<p>TODO: WHAT IS the local_id in this pair? check _find_usage_pairs()</p>
+<p>TODO: explain <code>_copy_usage_pairs</code></p>
+<h1 id="the-x-stack"><a class="header" href="#the-x-stack">The x-stack</a></h1>
+<p>Consider a given basic block, all of its successors, and all of the predecessors of its successors.
+We define an <code>EdgeSet</code> as all edges who share a parent, a child, a sibling or a co-parent.</p>
+<p>TODO: example of edge set</p>
+<p>As an auxiliary way of collecting all of the information pertaining a block for the construction of the x-stack, we define a <code>BlockRecord</code>, that contains:</p>
+<ul>
+<li>a basic block (in this case MIR basic block)</li>
+<li>a list of all local references (abstract loads and stores)</li>
+<li>live-in vars (see VLA)</li>
+<li>live-out vars (see VLA)</li>
+<li>children, parents, co-parents and co-siblings</li>
+</ul>
+<h1 id="the-f-stack"><a class="header" href="#the-f-stack">The f-stack</a></h1>
+<p>The f-stack is initialized in the entry block and remains constant throughout a whole subroutine.
+For f-stack building, we consider now a subroutine divided in (MIR) basic blocks.
+Now, consider the set of all variables referenced in this subroutine (i.e. all instances of <code>AbstractStore</code> and <code>AbstractLoad</code>), sorted by their local id.
+Note that, at the point of its construction, all L-stack and X-stack allocations have been allocated in code.</p>
+<blockquote>
+<p>[!NOTE] In case no variable defs or uses are found, that is, the whole subroutine has no instances of <code>AbstractStore</code> or <code>AbstractLoad</code> at this point, the f-stack is empty and no attempt to build it is performed.</p>
+</blockquote>
+<p>In pseudocode:</p>
+<pre><code class="language-python">    for subroutine s:
+        vars &lt;= collect all variables in s
+        if vars is empty:
+            return ()
+        block_0 = s.body[0]
+        first...
+        TODO: complete
+</code></pre>
+<pre><code class="language-python">def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine) -&gt; None:
+    all_variables = _VariableCollector.collect(subroutine)
+    if not all_variables:
+        subroutine.pre_alloc = FStackPreAllocation.empty()
+        return
+
+    entry_block = subroutine.body[0]
+    first_store_ops = _get_lazy_fstack(entry_block)
+    unsorted_pre_allocate = [x for x in all_variables if x not in first_store_ops]
+    subroutine.pre_alloc = _get_pre_alloc(subroutine, unsorted_pre_allocate)
+    logger.debug(
+        f"{subroutine.signature.name} f-stack entry: {subroutine.pre_alloc.allocate_on_entry}"
+    )
+    logger.debug(f"{subroutine.signature.name} f-stack on first store: {list(first_store_ops)}")
+
+    entry_block.f_stack_in = subroutine.pre_alloc.allocate_on_entry
+    entry_block.f_stack_out = [*entry_block.f_stack_in, *first_store_ops]
+    # f-stack is initialized in the entry block and doesn't change after that
+    for block in subroutine.body[1:]:
+        block.f_stack_in = block.f_stack_out = entry_block.f_stack_out
+
+    for block in subroutine.body:
+        stack = Stack.begin_block(subroutine, block)
+        for index, op in enumerate(block.mem_ops):
+            match op:
+                case mir.AbstractStore() as store:
+                    insert = op in first_store_ops.values()
+                    if insert:
+                        assert block is entry_block
+                        depth = stack.xl_height - 1
+                    else:
+                        depth = stack.fxl_height - stack.f_stack.index(store.local_id) - 1
+
+                    block.mem_ops[index] = op = attrs_extend(
+                        mir.StoreFStack,
+                        store,
+                        depth=depth,
+                        frame_index=stack.fxl_height - depth - 1,
+                        insert=insert,
+                    )
+                case mir.AbstractLoad() as load:
+                    depth = stack.fxl_height - stack.f_stack.index(load.local_id) - 1
+                    block.mem_ops[index] = op = attrs_extend(
+                        mir.LoadFStack,
+                        load,
+                        depth=depth,
+                        frame_index=stack.fxl_height - depth - 1,
+                    )
+            op.accept(stack)
+        match block.terminator:
+            case mir.RetSub() as retsub:
+                block.terminator = attrs.evolve(
+                    retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
+                )
+</code></pre>
+<h1 id="context"><a class="header" href="#context">Context</a></h1>
+<p>The context object in this layer provides very limited functionality. It is solely a store of the IR program and a list of all subroutine names and their associated IR code.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>The implementation attempts to get a list of names that are the shortest possible.</p>
+</blockquote>
+ <!--TODO: WHEN is that not the case? example -->
+<h1 id="optimizations-performed-1"><a class="header" href="#optimizations-performed-1">Optimizations performed</a></h1>
+<p>There is a single optimization function, a peephole optimizer with a window of size 2 (i.e. optimizing instruction pairs), however this optimization pass is performed after resolving allocation of each of the three regions (for <code>O1</code> and <code>O2</code> opt. levels). Note that <code>O0</code> opt. level performs no optimizations in this layer, and only allocates <a href="#the-l-stack">L-stack</a> and <a href="#the-f-stack">F-stack</a> (leaving the <a href="#the-x-stack">X-stack</a> region empty).</p>
+<p>For the optimization pass, it’s crucial to first perform a subroutine-wide variable lifetime analysis.</p>
+<h2 id="variable-lifetime-analysis-1"><a class="header" href="#variable-lifetime-analysis-1">Variable lifetime analysis <sup class="footnote-reference" id="fr-1-1"><a href="#footnote-1">1</a></sup></a></h2>
+<p>We say that a variable is <em>live</em> if it holds a value that will/might be used in the future.</p>
+<p>In the subsequent analysis, a node <code>n</code> represents an <a href="#full-models-reference-1">MIR instruction</a>. The relevant nodes for this analysis are <code>AbstractStore</code> and <code>AbstractLoad</code>.</p>
+<p>We define the following sets:</p>
+<p><code>use[n]</code>: the set of variable uses in the node <code>n</code> of the control flow graph. A variable use is a right hand side appearence of a variable’s identifier.</p>
+<p><code>def[n]</code>: the set of variable definitions in the node <code>n</code> of the control flow graph. A variable definition is a left hand side appearence of a variable’s identifier.</p>
+<p><code>in[n]</code>: the set of variables that are live-in at node <code>n</code>. A variable (temp) <code>a</code> is live-in at node <code>n</code> if it is used at <code>n</code> (<code>a</code> $\in$ <code>use[n]</code>), or if there is a path from <code>n</code> to a node that uses <code>a</code> that does not contain a definition of (assignment to) <code>a</code>. We write <code>a</code> $\in$ <code>in[n]</code>.</p>
+<p><code>out[n]</code>: the set of variables that are live-out at node <code>n</code>. A variable <code>a</code> is live-out at node <code>n</code> if it is live-in at one of the successors of <code>n</code>. We write <code>a</code> $\in$ <code>out[n]</code>.</p>
+<p>The sets satisfy the following two equations:</p>
+<p><code>in[n]</code> $=$ <code>use[n]</code> $\cup$ (<code>out[n]</code> $-$ <code>def[n]</code>)</p>
+<p><code>out[n]</code> $=$ $\cup$ { <code>in[s]</code> $|$ <code>s</code> $\in$ <code>succ[n]</code> }</p>
+<p>Furthermore, a node <code>n'</code> that is an <code>AbstractStore</code> is a <em>dead store</em> if the variable to which it stores <code>v</code> (identified solely by its local id) is such that:</p>
+<p><code>v</code> $\notin$ <code>out[n']</code>.</p>
+<p>In other words, the target store variable <code>v</code> is not live-out for <code>n'</code>, which means that there is no control flow path to a node that uses this variable from this point of the program on.</p>
+<h3 id="iterative-construction-of-variable-lifetime-analysis-sets"><a class="header" href="#iterative-construction-of-variable-lifetime-analysis-sets">Iterative construction of variable lifetime analysis sets</a></h3>
+<p>TODO: explain</p>
+<h2 id="dead-store-removal-l-stack-case"><a class="header" href="#dead-store-removal-l-stack-case">Dead store removal (l-stack case)</a></h2>
+<!-- TODO: isolate when this happens in l-stack construction and describe -->
+<h2 id="peephole-optimizations"><a class="header" href="#peephole-optimizations">Peephole optimizations</a></h2>
+<p>We define a peephole window of size 2, meaning the peephole optimizer will consider <em>pairs</em> of operations inside each <a href="#memorybasicblock">basic block</a>.
+For all these, we consider a pair of ops. <code>(a, b)</code>.<br>The optimizer will perform the following passes in the order in which they are declared:</p>
+<!-- TODO: all the following are not independant. Should they be in one big optimization all together? -->
+<h3 id="move-storelxfstack-ids-into-products-of-previous-op"><a class="header" href="#move-storelxfstack-ids-into-products-of-previous-op">Move <code>Store{L,X,F}Stack</code> id’s into products of previous op.</a></h3>
+<pre><code class="language-py"># move local_ids to produces of previous op where possible
+    if (
+        isinstance(b, mir.StoreLStack | mir.StoreXStack | mir.StoreFStack)
+        and a.produces
+        and a.produces[-1] != b.local_id
+    ):
+        a = attrs.evolve(a, produces=(*a.produces[:-1], b.local_id))
+        return a, b
+</code></pre>
+<blockquote>
+<p><a href="TODO_LINK">Reference implementation</a></p>
+</blockquote>
+<p>Consider a case where the first element of the pair, <code>a</code>, is an op. that produces a non-empty list of <code>n</code> local ids <code>a.prod = [a_1, a_2, ..., a_n]</code> (<code>n &gt; 0</code>). Now, assume the second element, <code>b</code>, is a <em>materialised</em> store operation (one of MIR.StoreLStack, MIR.StoreXStack or MIR.StoreFStack). Furthermore, consider that the target local id of <code>b</code> is such that <code>b.local_id != a_n</code>. In this case, we have an implicit aliasing of the local id <code>a_n</code> into <code>b.local_id</code>. We can thus get rid of <code>a_n</code> by modifying the products of <code>a</code> in place.<br>The resulting pair is then <code>(a', b)</code> where <code>a'.prod = [a_1, a_2, ..., b.local_id]</code>.</p>
+<p>TODO: illustrative example</p>
+<p>Note that, since this optimization is run after each stack region’s allocation, each subsequent run unlocks new potential cases for <code>b</code>.</p>
+<h3 id="eliminate-top-of-stack-renamings"><a class="header" href="#eliminate-top-of-stack-renamings">Eliminate top-of-stack renamings</a></h3>
+<pre><code class="language-py">    # remove redundant stores and loads
+    if a.produces and a.produces[-1] == _get_local_id_alias(b):
+        return (a,)
+</code></pre>
+<blockquote>
+<p><a href="TODO_LINK">Reference implementation</a></p>
+</blockquote>
+<p>Consider now a pair where the last product of <code>a</code> is just a local id alias in <code>b</code>.
+This is, if <code>b</code> is a <code>MIR.StoreLStack</code> or a <code>MIR.LoadLStack</code> without copy, and the <code>depth</code> is 0. In other words, <code>b</code> takes the top of the stack and, through a store/load operation, renames it to <code>b.local_id</code>.<br>Then, <code>b</code> may be safely removed, and the resulting pattern is just <code>(a, )</code>.</p>
+<h3 id="dead-store-removal-x-stack-f-stack-cases"><a class="header" href="#dead-store-removal-x-stack-f-stack-cases">Dead store removal (x-stack, f-stack cases)</a></h3>
+<blockquote>
+<p>[!Note] l-stack dead store removal occurs during l-stack allocation. The other two stack region cases are handled here.</p>
+</blockquote>
+<pre><code class="language-py">    if vla.is_dead_store(b):
+        return a, mir.Pop(n=1, source_location=b.source_location)
+</code></pre>
+<p>If <code>b</code> constitutes a <em>dead store</em> (see <a href="#variable-lifetime-analysis">Variable Lifetime Analysis section</a> above), then it may be replaced by a <code>MIR.Pop</code> operation to pop the top value of the stack, as the last product of <code>a</code> is stored but never used again, and can therefore be safely discarded.
+The resulting pattern is then <code>(a, MIR.Pop(n=1))</code>.\</p>
+<p>TODO: illustrative example</p>
+<h3 id="fold-storeload-chains-inside-the-same-region-non-rotational"><a class="header" href="#fold-storeload-chains-inside-the-same-region-non-rotational">Fold <code>store=&gt;load</code> chains inside the same region (non-rotational)</a></h3>
+<pre><code class="language-py">    if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
+        match a, b:
+            case mir.LoadXStack(), mir.StoreXStack():
+                return ()
+            case mir.LoadFStack(), mir.StoreFStack():
+                return ()
+            case mir.AbstractLoad(), mir.AbstractStore():
+                # this is used see test_cases/bug_load_store_load_store
+                return ()
+</code></pre>
+<p>If <code>a</code> is a load operation, <code>b</code> is a store operation, and the local ids match, we have a <code>store=&gt;load</code> chain. If, furthermore, these are both either:</p>
+<ul>
+<li>x-stack operations,</li>
+<li>f-stack operations, or</li>
+</ul>
+<!-- TODO: analyze THIS case. Where is this used? check the example provided -->
+<ul>
+<li>abstract (i.e. unmaterialized yet),\</li>
+</ul>
+<p>we can safely remove them without breaking dataflow, as the load means the variable is already stored in the correct region of the stack.<br>The resulting pattern is then an empty tuple <code>()</code>, as both elements of the pair are removed.</p>
+<p>TODO: illustrative example</p>
+<h1 id="validations-performed-2"><a class="header" href="#validations-performed-2">Validations performed</a></h1>
+<h2 id="unexpected-nodes"><a class="header" href="#unexpected-nodes">Unexpected nodes</a></h2>
+<!-- TODO: for this section, explain briefly what each of these should have turned into at this stage -->
+<p>There is a series of <a href="#full-models-reference">IR</a> nodes that should not be found during construction of the MIR program. This constitutes an implicit validation: by finding one of these at this stage, we know that the pipeline has failed at some point during the previous stage, and thus emit an <code>error</code> and fail compilation upon attempted visitation.</p>
+<ul>
+<li><code>CompiledContractReference</code> and <code>CompiledLogicSigReference</code></li>
+</ul>
+<!-- TODO: explain what they turned into and link -->
+<ul>
+<li><code>ValueTuple</code> nodes should have been split into their constituting values</li>
+</ul>
+<!-- TODO: link and double check -->
+<ul>
+<li>
+<p><code>ItxnConstant</code>, <code>SlotConstant</code>, and <code>InnerTransactionField</code></p>
+</li>
+<li>
+<p><code>BytesEncode</code> and <code>DecodeBytes</code> should have been resolved in the prior stage</p>
+</li>
+<li>
+<p>Box write and read operations (<code>BoxWrite</code> and <code>BoxRead</code>)</p>
+</li>
+<li>
+<p><code>ArrayLength</code>, <code>ExtractValue</code> and <code>ReplaceValue</code></p>
+</li>
+<li>
+<p><a href="#full-models-reference"><code>Phi</code></a> and <code>PhiArgument</code> nodes. These should have been either resolved during IR building by virtue of being <a href="#trivial-phi">trivial</a>, or after getting out of SSA during <a href="#ssa-destructuring">destructuring</a> for non-trivial ones.</p>
+</li>
+</ul>
+<!-- TODO: complete all validations, implicit and explicit -->
+<h2 id="f-stack-pre-allocation-avm-type"><a class="header" href="#f-stack-pre-allocation-avm-type">F-Stack pre-allocation AVM Type</a></h2>
+<p>The f-stack pre-allocation variables should all be either <code>uint64</code> or <code>bytes</code> typed. <code>any</code> AVM types will raise an error at this stage.</p>
+<!-- TODO: link to where this validation happen and explain a bit better why this is -->
+<!-- TODO: after construction? -->
+<h1 id="full-models-reference-1"><a class="header" href="#full-models-reference-1">Full models reference</a></h1>
+<p>In this section we provide the <a href="https://github.com/algorandfoundation/puya/blob/main/src/puya/mir/models.py">full set of nodes expressible in MIR</a>.</p>
+<h2 id="top-level-concepts"><a class="header" href="#top-level-concepts">Top-Level Concepts</a></h2>
+<h3 id="baseop"><a class="header" href="#baseop"><strong><code>BaseOp</code></strong></a></h3>
+<p>Abstract base class for all MIR operations. Tracks:</p>
+<ul>
+<li><code>consumes</code>: how many values are popped from the l-stack</li>
+<li><code>produces</code>: local IDs pushed to the l-stack</li>
+<li><code>error_message</code>, <code>source_location</code>
+Defines the visitor dispatch via <code>accept()</code>.</li>
+</ul>
+<hr>
+<h2 id="literal--special-value-ops"><a class="header" href="#literal--special-value-ops">Literal &amp; Special Value Ops</a></h2>
+<h3 id="int"><a class="header" href="#int"><strong><code>Int</code></strong></a></h3>
+<p>Pushes an integer literal onto the stack.</p>
+<h3 id="byte"><a class="header" href="#byte"><strong><code>Byte</code></strong></a></h3>
+<p>Pushes a byte literal using a given AVM byte encoding.</p>
+<h3 id="undefined"><a class="header" href="#undefined"><strong><code>Undefined</code></strong></a></h3>
+<p>Represents an undefined value of a specific AVM type.</p>
+<h3 id="templatevar"><a class="header" href="#templatevar"><strong><code>TemplateVar</code></strong></a></h3>
+<p>Represents a compile-time template variable (<code>int</code> or <code>byte</code>).</p>
+<h3 id="address"><a class="header" href="#address"><strong><code>Address</code></strong></a></h3>
+<p>Pushes a literal Algorand address.</p>
+<h3 id="method"><a class="header" href="#method"><strong><code>Method</code></strong></a></h3>
+<p>Pushes a method selector/string literal for ABI dispatch.</p>
+<hr>
+<h2 id="abstract-memory-ops"><a class="header" href="#abstract-memory-ops">Abstract Memory Ops</a></h2>
+<h3 id="storeop"><a class="header" href="#storeop"><strong><code>StoreOp</code></strong></a></h3>
+<p>Abstract superclass for all memory store operations.</p>
+<h3 id="loadop"><a class="header" href="#loadop"><strong><code>LoadOp</code></strong></a></h3>
+<p>Abstract superclass for all memory load operations.</p>
+<hr>
+<h2 id="abstract-storage-ops"><a class="header" href="#abstract-storage-ops">Abstract Storage Ops</a></h2>
+<p>These ops. are the drivers of transformation in this compiler layer, as they will be replaced by specific region storage ops. as a result of the MIR processing stages (or removed by any of the optimization passes in between).</p>
+<h3 id="abstractstore"><a class="header" href="#abstractstore"><strong><code>AbstractStore</code></strong></a></h3>
+<p>Consumes stack top and stores into a local variable.</p>
+<h3 id="abstractload"><a class="header" href="#abstractload"><strong><code>AbstractLoad</code></strong></a></h3>
+<p>Loads a local variable by ID and pushes it onto the stack.</p>
+<hr>
+<h2 id="local-variable-l-stack-ops"><a class="header" href="#local-variable-l-stack-ops">Local Variable (L-Stack) Ops</a></h2>
+<h3 id="storelstack"><a class="header" href="#storelstack"><strong><code>StoreLStack</code></strong></a></h3>
+<p>Stores a value into the L-stack at a given depth.
+May optionally push a copy to the stack.<br>If producing a copy (copy flag set to true), then the
+<code>produce</code> value must be equal to 1, else it must be equal to 0.</p>
+<h3 id="loadlstack"><a class="header" href="#loadlstack"><strong><code>LoadLStack</code></strong></a></h3>
+<p>Loads a value from the L-stack at a computed depth.
+May optionally produce a copy to the stack.<br>If producing a copy (copy flag set to true), then the
+<code>produce</code> value must be equal to 1, else it must be equal to 0.</p>
+<hr>
+<h2 id="x-stack-expression-stack-ops"><a class="header" href="#x-stack-expression-stack-ops">X-Stack (Expression Stack) Ops</a></h2>
+<h3 id="storexstack"><a class="header" href="#storexstack"><strong><code>StoreXStack</code></strong></a></h3>
+<p>Stores a value into the X-stack at a given depth.</p>
+<h3 id="loadxstack"><a class="header" href="#loadxstack"><strong><code>LoadXStack</code></strong></a></h3>
+<p>Loads a value from the X-stack.</p>
+<hr>
+<h2 id="f-stack-frame-stack-ops"><a class="header" href="#f-stack-frame-stack-ops">F-Stack (Frame Stack) Ops</a></h2>
+<h3 id="storefstack"><a class="header" href="#storefstack"><strong><code>StoreFStack</code></strong></a></h3>
+<p>Stores into a frame stack slot (<code>frame_index</code>).</p>
+<h3 id="loadfstack"><a class="header" href="#loadfstack"><strong><code>LoadFStack</code></strong></a></h3>
+<p>Loads a value from a frame stack slot.</p>
+<hr>
+<h2 id="parameter-loadstore"><a class="header" href="#parameter-loadstore">Parameter Load/Store</a></h2>
+<h3 id="loadparam"><a class="header" href="#loadparam"><strong><code>LoadParam</code></strong></a></h3>
+<p>Loads a subroutine parameter, pushing its value.</p>
+<h3 id="storeparam"><a class="header" href="#storeparam"><strong><code>StoreParam</code></strong></a></h3>
+<p>Stores a value into a parameter slot.</p>
+<hr>
+<h2 id="stack-manipulation"><a class="header" href="#stack-manipulation">Stack Manipulation</a></h2>
+<h3 id="pop"><a class="header" href="#pop"><strong><code>Pop</code></strong></a></h3>
+<p>Removes <code>n</code> values from the stack.</p>
+<hr>
+<h2 id="subroutine-calls"><a class="header" href="#subroutine-calls">Subroutine Calls</a></h2>
+<h3 id="callsub"><a class="header" href="#callsub"><strong><code>CallSub</code></strong></a></h3>
+<p>Calls a subroutine:</p>
+<ul>
+<li>consumes parameter count</li>
+<li>produces return count</li>
+<li>tracks target name</li>
+</ul>
+<h3 id="intrinsicop"><a class="header" href="#intrinsicop"><strong><code>IntrinsicOp</code></strong></a></h3>
+<p>Represents a TEAL intrinsic operation (non-memory, non-control).<br>Holds opcode + immediates.</p>
+<hr>
+<h2 id="control-flow-ops-terminators"><a class="header" href="#control-flow-ops-terminators">Control Flow Ops (Terminators)</a></h2>
+<h3 id="controlop"><a class="header" href="#controlop"><strong><code>ControlOp</code></strong></a></h3>
+<p>Base class for all block terminators (branches, exits, returns).</p>
+<h3 id="retsub"><a class="header" href="#retsub"><strong><code>RetSub</code></strong></a></h3>
+<p>Return from a subroutine.</p>
+<h3 id="programexit"><a class="header" href="#programexit"><strong><code>ProgramExit</code></strong></a></h3>
+<p>Return from the main program.</p>
+<h3 id="err"><a class="header" href="#err"><strong><code>Err</code></strong></a></h3>
+<p>Program exit with an error.</p>
+<h3 id="goto"><a class="header" href="#goto"><strong><code>Goto</code></strong></a></h3>
+<p>Unconditional branch.</p>
+<h3 id="conditionalbranch"><a class="header" href="#conditionalbranch"><strong><code>ConditionalBranch</code></strong></a></h3>
+<p>Branch on zero/nonzero: bz &lt;zero_target&gt; ; b &lt;nonzero_target&gt;</p>
+<h3 id="switch"><a class="header" href="#switch"><strong><code>Switch</code></strong></a></h3>
+<p>Switch-table branch with default target.</p>
+<h3 id="match"><a class="header" href="#match"><strong><code>Match</code></strong></a></h3>
+<p>Pattern-match branching.<br>Consumes N+1 stack values.</p>
+<hr>
+<h2 id="ir-structural-nodes"><a class="header" href="#ir-structural-nodes">IR Structural Nodes</a></h2>
+<h3 id="memorybasicblock"><a class="header" href="#memorybasicblock"><strong><code>MemoryBasicBlock</code></strong></a></h3>
+<p>A basic block containing:</p>
+<ul>
+<li>memory ops</li>
+<li>a terminator</li>
+<li>predecessors</li>
+<li>stack-shape metadata (<code>x_stack_in/out</code>, <code>f_stack_in/out</code>)</li>
+<li>name and ID</li>
+</ul>
+<h3 id="parameter"><a class="header" href="#parameter"><strong><code>Parameter</code></strong></a></h3>
+<p>Represents a parameter of a subroutine: name, local ID, type.</p>
+<h3 id="signature"><a class="header" href="#signature"><strong><code>Signature</code></strong></a></h3>
+<p>Full subroutine signature (parameters + return types).</p>
+<h3 id="fstackpreallocation"><a class="header" href="#fstackpreallocation"><strong><code>FStackPreAllocation</code></strong></a></h3>
+<p>Determines which local variables must be preallocated in the F-stack.</p>
+<h3 id="memorysubroutine"><a class="header" href="#memorysubroutine"><strong><code>MemorySubroutine</code></strong></a></h3>
+<p>A subroutine in Memory IR. It contains the following fields:</p>
+<ul>
+<li><code>id</code>: a unique string identifying this subroutine in the context of the whole program.</li>
+<li><code>is_main</code>: a boolean flag indicating if this is the main subroutine or not.</li>
+<li><code>signature</code>: a structured signature field composed by the function name, its input parameters, and the return type/s (in AVM types).</li>
+<li><code>body</code>: a sequence of basic blocks modeled as <a href="#memorybasicblock"><code>MemoryBasicBlock</code></a>.</li>
+<li>Optional fields:
+<ul>
+<li><code>pre_alloc</code>: an <em>optional</em> field containing the f-stack allocation (see the <a href="#the-f-stack">relevant section above</a>).</li>
+<li><code>source_location</code>: an <em>optional</em> field containing a representation of the source location for this subroutine (line and column number for start and end of the code block in the source file).</li>
+</ul>
+</li>
+</ul>
+<h3 id="slotallocation"><a class="header" href="#slotallocation"><strong><code>SlotAllocation</code></strong></a></h3>
+<p>Describes scratch slot allocation for TEAL lowering.</p>
+<h3 id="program"><a class="header" href="#program"><strong><code>Program</code></strong></a></h3>
+<p>Represents a full MIR program:</p>
+<ul>
+<li>kind (approval/clear/global/etc.)</li>
+<li>main subroutine</li>
+<li>user subroutines</li>
+<li>AVM version</li>
+<li>slot allocation</li>
+</ul>
+<hr>
+<h2 id="abstractstore-1"><a class="header" href="#abstractstore-1">AbstractStore</a></h2>
+<p>Store operations for a <code>local id</code> identified variable, which have not yet been materialized to a specific register (or in this case, a stack location). After the stack passes in this layer, no abstract stores should remain before TEAL lowering (see validation procedures). Resolving these is one half of the main objective of this layer.</p>
+<h2 id="abstractload-1"><a class="header" href="#abstractload-1">AbstractLoad</a></h2>
+<p>Load operations for a <code>local id</code> identified variable, which have not yet been materialized. After the stack passes in this layer, no abstract loads should remain before TEAL lowering (see validation procedures). Resolving these is the other half of the main objective of this layer.</p>
+<h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
+<h2 id="mir-syntax"><a class="header" href="#mir-syntax">MIR syntax</a></h2>
+<h2 id="mir-outputs"><a class="header" href="#mir-outputs">MIR outputs</a></h2>
+<p>There are a series of intermediate outputs written in human readable format throughout this stage.
+The first output is tagged <code>"build"</code>, and is output right after lowering has happened, but before any of the stack regions have been allocated.\</p>
+<p>TODO: link every location where the output is made.</p>
+<ol start="500">
+<li>=&gt; stack operations get a stack description.
+Stack description for l-stack operations is just as is, with comma separated values, where the last values are the top of the stack and the first values are the bottom of the stack.</li>
+</ol>
+<p>Stack description for P, F, X come after (…)</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-1">
+<p>this section is heavily based on https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf <a href="#fr-1-1">↩</a></p>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="teal-layer-avm-code-or-final-lowering"><a class="header" href="#teal-layer-avm-code-or-final-lowering">TEAL layer (AVM code or “final” lowering)</a></h1>
+<p>The MIR program is consumed by mir_to_teal(.), where the program “main” subroutine is built first.
+Then, each of the other “subroutines” are built.</p>
+<p>Optionally, the TEAL at this intermediate, unoptimized stage is output, tagged as “lowered”.</p>
+<p>Then optimizations are run on the lowered TEAL. Note that there are many optimizations here
+that are run regardless of optimization level.</p>
+<p>Finally the transformed full TEAL program is returned.</p>
+<h1 id="lowering-from-mir"><a class="header" href="#lowering-from-mir">Lowering from MIR</a></h1>
+<p>The <a href="TODO_LINK">main algorithm</a> for this lowering does the following:
+(TODO:pseudocode)</p>
+<pre><code class="language-python">def mir_to_teal(
+    context: ArtifactCompileContext, program_mir: mir.Program
+) -&gt; teal_models.TealProgram:
+    main = TealBuilder.build_subroutine(
+        program_mir.main, slot_allocation=program_mir.slot_allocation
+    )
+    subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in program_mir.subroutines]
+    teal = teal_models.TealProgram(
+        kind=program_mir.kind,
+        avm_version=program_mir.avm_version,
+        main=main,
+        subroutines=subroutines,
+    )
+    maybe_output_intermediate_teal(context, teal, qualifier="lowered")
+    initial_check_set = _collect_explicit_checks(teal)
+    optimize_teal_program(context, teal)
+    post_allocation_check_set = _collect_explicit_checks(teal)
+    for check_data, initial_count in initial_check_set.items():
+        # less than rather than != since we can duplicate ops for inlining
+        if post_allocation_check_set.get(check_data, 0) &lt; initial_count:
+            raise InternalError("explicit condition check(s) removed during TEAL optimization")
+    return teal
+</code></pre>
+<p>That is, the special <code>main</code> subroutine is built first, then each subroutine in the program.</p>
+<p>A <code>TealProgram</code> structure is created with these, with the corresponding avm version and program kind (whether a stateful application or a logic signature).<br>Explicit checks (<a href="TODO_LINK"><code>Assert</code></a> and <a href="TODO_LINK"><code>Err</code></a> instructions) are collected.<br><a href="#optimizations-performed-2">Optimizations</a> are performed, and post-optimization explicit checks are collected again, and compared to those collected pre-optimization (see the <a href="#validations-performed-3">validations performed</a> section below).<br>Finally, the optimized TEAL program is output.</p>
+<h2 id="building"><a class="header" href="#building">Building</a></h2>
+<p>Most MIR nodes are lowered as a single TEAL node, which in turn almost always represent a single TEAL op.<br>Notable exceptions to this rule are MIR <code>ConditionalBranch</code> nodes (which get lowered as 2 ops. to make the fallthrough case explicit), similarly to <code>Switch</code> and <code>Match</code> nodes.</p>
+<blockquote>
+<p>[!NOTE] after building, <code>TEALBlocks</code> are no longer assured to be strict basic blocks with a single exit point.</p>
+</blockquote>
+<p>TODO: all other built models (any interesting parts)</p>
+<h3 id="conditional-branch"><a class="header" href="#conditional-branch">Conditional Branch</a></h3>
+<p>A <a href="../specs/MIR.html">MIR conditional branch node</a> gets lowered as either a <code>BranchZero</code> TEAL node or a <code>BranchNotZero</code> TEAL node, followed by a <code>Branch</code> TEAL node targeting the next block.</p>
+<blockquote>
+<p>[!INFO] Right after building but before any optimizations, an output may be obtained. The output at this stage is tagged “lowered” (for example <code>my_contract.lowered.teal</code>), and is governed by the <code>--output-intermediate-teal</code> flag.</p>
+</blockquote>
+<h2 id="intra-layer-transformations"><a class="header" href="#intra-layer-transformations">Intra-layer transformations</a></h2>
+<h1 id="optimizations-performed-2"><a class="header" href="#optimizations-performed-2">Optimizations performed</a></h1>
+<p>TODO: DIAGRAMA_O0</p>
+<p>TODO: DIAGRAMA_O1</p>
+<p>TODO: DIAGRAMA_O2</p>
+<p>The main optimization loop (in <a href="../puya/src/puya/teal/optimize/main.py">main.py</a>) executes
+for each subroutine (inlcuding <code>main</code>), already lowered into TEAL after <a href="#memory-intermediate-representation-mir-layer">MIR =&gt; TEAL lowering</a>,
+the following set of optimizations is performed in the order in which they are presented, dependant on optimization level.</p>
+<h2 id="subroutine-optimizations-at-instruction-level"><a class="header" href="#subroutine-optimizations-at-instruction-level">Subroutine optimizations at instruction level</a></h2>
+<p>These are mostly peephole optimizations performed at the instruction (op.) level. Several passes are realized until a stable program is achieved.</p>
+<p><a href="TODO_LINK">Link to reference impl.</a></p>
+<p>These passes work at the <a href="#teal-block">block level</a>, which means they are run once for each block in the subroutine, replacing and simplifying ops. <em>inside</em> a given block.</p>
+<p>After every instruction level optimization pass through a block, a quick <a href="#validations-performed-3">stack height validation</a> is performed for each block.</p>
+<p>A loop is in place to perform <a href="#">constant stack shuffling</a>, <a href="#">repeated rotations simplificacion</a>, and <a href="#peephole-optimizations-1">peephole optimizations</a>.<br>The loop works on the same block until a full pass without modifications is observed.</p>
+<h3 id="constant-stack-shuffling"><a class="header" href="#constant-stack-shuffling">Constant stack shuffling</a></h3>
+<h3 id="repeated-rotations-simplification"><a class="header" href="#repeated-rotations-simplification">Repeated rotations simplification</a></h3>
+<h2 id="peephole-optimizations-1"><a class="header" href="#peephole-optimizations-1">Peephole optimizations</a></h2>
+<p>These are optimizations that replace teal patterns for other, more budget-efficient or bytecode-succint patterns.</p>
+<p>There are windows of one, two, three and four opcodes respectively that will be used.
+They will appear sequentially in order of window size.</p>
+<p>Some preliminary definitions:</p>
+<ul>
+<li><code>{COMM_OP}</code> is a commutative op. One of
+<code>[       "+",       "*",       "&amp;",       "&amp;&amp;",       "|",       "||",       "^",       "==",       "!=",       "b*",       "b+",       "b&amp;",       "b|",       "b^",       "b==",       "b!=",       "addw",       "mulw" ]</code></li>
+<li><code>{SWAP_OP}</code> is a stack swap op. One of
+<code>[       "swap",       "cover 1",       "uncover 1" ]</code></li>
+</ul>
+<p>By size of the peephole window defined, we have the following optimizations performed.</p>
+<h3 id="singles"><a class="header" href="#singles">Singles:</a></h3>
+<p>Note that all of these are performed at all opt. levels (even -O0).</p>
+<ul>
+<li><code>arg n</code> -&gt; <code>arg_n</code> (for <code>n &lt;= 3</code>).</li>
+<li><code>cover 0</code> -&gt; []. Also <code>uncover 0</code> -&gt; [].</li>
+<li><code>dig 0</code> -&gt; <code>dup</code>.</li>
+<li><code>popn 1</code> -&gt; <code>pop</code>.</li>
+</ul>
+<h3 id="pairs"><a class="header" href="#pairs">Pairs:</a></h3>
+<p>Note that all of these are performed even at -O0.</p>
+<ul>
+<li>
+<p>Redundant rotation removal. This encompasses:
+1) <code>cover n; uncover n;</code> -&gt; [].
+2) <code>uncover n; cover n;</code> -&gt; [].
+3) <code>swap; swap;</code> -&gt; [].
+4) <code>swap; cover 1;</code> -&gt; [].
+5) <code>swap; uncover 1;</code> -&gt; [].
+6) <code>cover 1; swap;</code> -&gt; [].
+7) <code>cover 1; cover 1;</code> -&gt; [].
+8) <code>cover 1; uncover 1;</code> -&gt; []. (already transformed in 1st rule).
+9) <code>uncover 1; swap;</code> -&gt; [].
+10) <code>uncover 1; cover 1;</code> -&gt; []. (already transformed in 1st rule).
+11) <code>uncover 1; uncover 1;</code> -&gt; [].</p>
+</li>
+<li>
+<p>Any stack swap followed by a <code>pop</code> is replaced by a <code>bury 1</code>:
+1) <code>swap; pop</code> -&gt; <code>bury 1</code>.
+2) <code>cover 1; pop</code> -&gt; <code>bury 1</code>.
+3) <code>uncover 1; pop</code> -&gt; <code>bury 1</code>.</p>
+</li>
+<li>
+<p>Any stack swap followed by a commutative op is replaced by just the op by itself. Like this:
+<code>{SWAP_OP}; {COMM_OP}</code> -&gt; <code>{COMM_OP}</code>.</p>
+</li>
+<li>
+<p><code>frame_dig n; frame_bury n</code> -&gt; [].</p>
+</li>
+<li>
+<p><code>frame_bury n; frame_dig n</code> -&gt; <code>dup; frame_bury_n;</code>.</p>
+</li>
+<li>
+<p><code>dup; {SWAP_OP}</code> -&gt; <code>dup</code>. Also <code>dupn; {SWAP_OP}</code> -&gt; <code>dupn</code>.</p>
+</li>
+<li>
+<p><code>dup; pop</code> -&gt; [].
+(TODO: complete!)</p>
+</li>
+<li>
+<p><code>dig 1; dig 1</code> -&gt; <code>dup2</code>.</p>
+</li>
+<li>
+<p><code>int 0; return -&gt; err</code>.</p>
+</li>
+<li>
+<p>Any stack swap operations followed by binary ordering operations are reversed. Like this:
+<code>{SWAP_OP}; {BIN_ORD_OP}</code> -&gt; <code>{flip(BIN_ORD_OP)}</code>, where <code>flip()</code> finds usage of <code>&gt;</code> or <code>&lt;</code> and
+inverts them (e.g. <code>&gt;=</code> becomes <code>&lt;=</code>).</p>
+</li>
+</ul>
+<h3 id="triplets"><a class="header" href="#triplets">Triplets:</a></h3>
+<p>If any of the ops in the analysis triplet is a <code>frame_dig</code> operation, a special analysis is performed.</p>
+<!-- TODO explain frame_dig analysis and why its relevant-->
+<ul>
+<li>
+<p><code>'cover 3; cover 3; {SWAP_OP}</code> -&gt; <code>uncover 2; uncover 3</code>
+Proof: …</p>
+</li>
+<li>
+<p><code>uncover 2; {SWAP_OP}; uncover 2</code> -&gt; <code>swap</code>
+Proof: …</p>
+</li>
+</ul>
+<p>TODO: complete</p>
+<h3 id="quadruplets"><a class="header" href="#quadruplets">Quadruplets:</a></h3>
+<p>TODO</p>
+<blockquote>
+<p>[!INFO] after the set of <a href="#subroutine-op-optimizations">op. level optimizations</a> is run, an optional intermediate output may be emitted, with the qualifier <em>“peephole”</em> (e.g. <code>my_contract.peephole.teal</code>).</p>
+</blockquote>
+<h2 id="subroutine-block-optimizations"><a class="header" href="#subroutine-block-optimizations">Subroutine Block optimizations</a></h2>
+<blockquote>
+<p>[!INFO] this set of optimizations is only performed on optimization levels <code>O1</code> and <code>O2</code>.</p>
+</blockquote>
+<p>Most of the subroutines in this pass deal with getting rid of jumps by inlining when possible. We simplify chains of single unconditional jump instruction blocks,…
+TODO: complete intro</p>
+<h3 id="inline-optimizations-jump-chains"><a class="header" href="#inline-optimizations-jump-chains">Inline optimizations: jump chains</a></h3>
+<p>Consider now the set of all blocks $b$ that are a single unconditional <code>Branch</code> to a target, have no stack manipulations associated, and are not the entry block.\</p>
+<p>We remove these from the subroutine blocks, keeping track of the link between original block label and their target.</p>
+<p>Now, for every jump chain $b_0 =&gt; b_1 =&gt; … =&gt; b_n$, we backpropagate in order to have every $b_0, b_1…b_{n-1} =&gt; b_n$, mapping their unique identifying labels to the last on the chain.</p>
+<p>After we have simplified all possible chains, we traverse all instructions inside the subroutine. For every jump instruction (<code>Branch</code>, <code>BranchNonZero</code>, <code>BranchZero</code>, <code>Switch</code> and <code>Match</code>) targetting any element in a chain, we replace the target by the last element.</p>
+<h3 id="inline-optimizations-single-instruction-blocks"><a class="header" href="#inline-optimizations-single-instruction-blocks">Inline optimizations: single instruction blocks</a></h3>
+<p>TODO: complete</p>
+<h3 id="inline-optimizations-singly-referenced-blocks"><a class="header" href="#inline-optimizations-singly-referenced-blocks">Inline optimizations: singly referenced blocks</a></h3>
+<p>TODO: complete</p>
+<h3 id="replacement-of-subroutine-invocations-for-branches"><a class="header" href="#replacement-of-subroutine-invocations-for-branches">Replacement of subroutine invocations for branches</a></h3>
+<p>For a given subroutine, we iterate over all instructions. If a given <code>callsub</code> op. is found, and the jump target subroutine is determined to be “branchable” (see above for the definition), the operation is replaced by a hard branch (<code>b</code>, represented in this layer by the <a href="#TODO_branch"><code>Branch</code></a> node) to the same jump target.</p>
+<h3 id="inline-jump-chains"><a class="header" href="#inline-jump-chains">Inline jump chains</a></h3>
+<p>TODO: this one is repeated, but is the same as above. Should we keep it here?</p>
+<h3 id="remove-jump-fallthroughs"><a class="header" href="#remove-jump-fallthroughs">Remove jump fallthroughs</a></h3>
+<p>As per the building process, <a href="#TODO_LINK_MIR">MIR Conditionals</a>, as well as [Match] and [Switch] MIR nodes, generate explicit fallthrough hard branches (<code>b</code>, represented as <code>Branch</code> in this layer). These fallthroughs are useful for some analysis, but have no impact in control flow as the natural opcode evaluation order would trivially flow into the next line. Therefore, they are trivially removable at this stage.<br>Consider every pair of consecutive blocks $b0, b1$. whenever the last instruction in $b0$ is a <code>Branch</code> (unconditional branch) and the jump target is the unique identifying label of $b1$, we remove the branch operation from $b0$.</p>
+<p>TODO: what happens if I have an explicit branch to the label right next to it? Should we protect against this by making sure the branch is a fallthrough (e.g. check that the instruction right before is a bz or bnz)?</p>
+<p>TODO: understand stack manipulations guard case for O0</p>
+<h2 id="constant-gathering"><a class="header" href="#constant-gathering">Constant gathering</a></h2>
+<blockquote>
+<p>[!INFO] this optimization is performed on all optimization levels (<code>O0</code>, <code>O1</code> and <code>O2</code>).</p>
+</blockquote>
+<blockquote>
+<p>[!NOTE] this optimization is needed in <code>O0</code> because, due to ARC56, template variables need to be gathered into constant blocks for pc offset calculations. See the <a href="TODO_LINK">ARC56 standard</a> for further details.</p>
+</blockquote>
+<h2 id="combine-pushes"><a class="header" href="#combine-pushes">Combine pushes</a></h2>
+<blockquote>
+<p>[!INFO] this is only done for optimization levels <code>O1</code> and <code>O2</code>.</p>
+</blockquote>
+<p>If there is any sequence of consecutive <code>pushint</code> or <code>pushbytes</code> operations present in any block, in any subroutine,
+they are compressed into a <code>pushints</code> or <code>pushbytess</code> respectively. In the case of <code>pushbytess</code>, byte encodings are preserved for each value. Comments are comma-concatenated accordingly.
+TODO: example</p>
+<!-- def optimize_teal_program(
+    context: ArtifactCompileContext, teal_program: models.TealProgram
+) -> None:
+    # O0 will still remove some redundant ops to ensure a feasible program size
+    for teal_sub in teal_program.all_subroutines:
+        _optimize_subroutine_ops(context, teal_sub)
+    maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
+
+    if context.options.optimization_level > 0:
+        branchable_subroutine_entry_blocks = {
+            sub.blocks[0].label
+            for sub in teal_program.all_subroutines
+            if _is_branchable_subroutine(sub)
+        }
+
+        for teal_sub in teal_program.all_subroutines:
+            _optimize_subroutine_blocks(context, teal_sub, branchable_subroutine_entry_blocks)
+        maybe_output_intermediate_teal(context, teal_program, qualifier="block")
+
+    gather_program_constants(teal_program)
+    if context.options.optimization_level > 0:
+        combine_pushes(teal_program) -->
+<h1 id="validations-performed-3"><a class="header" href="#validations-performed-3">Validations performed</a></h1>
+<p>In this layer, validations are incorporated and performed after certain key optimizing passes in order to ensure properties like stack consistency, or the survival of checks marked as <em>explicit</em>.</p>
+<h2 id="unexpected-nodes-during-construction"><a class="header" href="#unexpected-nodes-during-construction">Unexpected nodes during construction</a></h2>
+<!-- TODO: fill these out -->
+<h2 id="stack-height-validation-teal-block-level"><a class="header" href="#stack-height-validation-teal-block-level">Stack height validation (TEAL block level)</a></h2>
+<p>The block ops. are traversed in order. The condition checked is:<br>$entry_stack_height + sum op.produces - op.consumes = exit_stack_height$,
+and also the series of partial sums obtained by sequentially subtracting <code>op.consumes</code> may never be less than zero (implying a stack underflow error was introduced by an optimization).</p>
+<p>Note that blocks whose terminator are program/subroutine exit ops. (<code>return</code>, <code>retsub</code> and <code>err</code>) will discard all extra elements in stack and therefore constitute the only exceptions to the aforementioned condition.</p>
+<p><a href="TODO">LINK TO REFERENCE IMPL</a></p>
+<h2 id="explicit-check-invariance"><a class="header" href="#explicit-check-invariance"><em>Explicit check</em> invariance</a></h2>
+<p>After lowering and before running optimization passes, an initial set of explicit checks is collected (see above in the build section). An explicit check is an <code>Assert</code> or <code>Err</code> TEAL model that has been marked as such, and thus will have an internal flag set to True when built.
+The collection algorithm simply tallies the amount of explicit checks by subroutine.
+After all <a href="#optimizations-performed-2">optimization passes</a> are performed, explicit checks are collected again.
+A decrease in explicit checks for a given subroutine means an optimization has been semantically destructive for the purpose of this validation, and will thus fail compilation.</p>
+<blockquote>
+<p>[!NOTE] the word <em>decrease</em> hides a subtlety here; consider that ops may be duplicated on <a href="#optimizations-performed-2">inlining</a>, and thus there could be <em>more</em> explicit checks after optimization.</p>
+</blockquote>
+<h1 id="teal-layer-nodes"><a class="header" href="#teal-layer-nodes">TEAL Layer nodes</a></h1>
+<p>The IR instructions in this layer are a quite close model of AVM TEAL ops, save for structural containers and template variables which are not part of AVM intrinsics.</p>
+<p>Consider a stack, modelled as a list of local ids, which are strings that represent local variables.</p>
+<p>We define 5 kinds of stack manipulations:</p>
+<ul>
+<li><code>StackConsume</code>: takes <code>n</code> elements off the top of the stack.</li>
+<li><code>StackExtend</code>: adds a sequence of local id’s to the top of the stack.</li>
+<li><code>StackDefine</code>: considering the set of unique variables in the stack, it performs a set intersection with the given elements, returning an extended set.</li>
+<li><code>StackInsert</code>: inserts a local id at a given stack <code>depth</code>. For a given stack $s$, the insertion index is computed as $idx = |s| - depth$.</li>
+<li><code>StackPop</code>: pops the stack at the specified <code>depth</code>. The index of the eliminated element is computed as $idx = |s| - depth - 1$</li>
+</ul>
+<p>Note that in this layer, the nodes/models of the resulting language represent TEAL opcodes of the latest AVM version. An abstract opcode is modelled using the following fields:
+(link to TealOp class)</p>
+<ul>
+<li>a string containing the opcode name</li>
+<li>a pair of unsigned integers representing the consumption and production of vals from stack</li>
+</ul>
+<p>and optionally:</p>
+<ul>
+<li>a source location in code (see common reference)</li>
+<li>a comment to be emmitted after the op in the resulting TEAL</li>
+<li>an error message to be emmited when/if the program fails trying to execute this op</li>
+<li>a sequence of stack manipulations (…)</li>
+</ul>
+<!-- ```python
+class TealOp:
+    op_code: str
+    consumes: int
+    produces: int
+    source_location: SourceLocation | None = attrs.field(eq=False)
+    comment: str | None = None
+    """A comment that is always emitted after the op in TEAL"""
+    error_message: str | None = None
+    """Error message to display if program fails at this op"""
+    stack_manipulations: Sequence[StackManipulation] = attrs.field(
+        default=(),
+        converter=tuple[StackManipulation, ...],
+        eq=False,
+    )
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return ()
+
+    def teal(self) -> str:
+        teal_args = [self.op_code, *map(str, self.immediates)]
+        if self.comment or self.error_message:
+            error_message = (
+                format_error_comment(self.op_code, self.error_message)
+                if self.error_message
+                else ""
+            )
+            comment_lines = error_message.splitlines()
+            comment_lines += (self.comment or "").splitlines()
+            comment = "\n//".join(comment_lines)
+            teal_args.append(f"// {comment}")
+        return " ".join(teal_args)
+
+    @property
+    def stack_height_delta(self) -> int:
+        return self.produces - self.consumes
+``` --><div style="break-before: page; page-break-before: always;"></div>
+<h1 id="assembly-layer"><a href="#assembly-layer" class="header">Assembly layer</a></h1>
+<!-- TODO: add relevant section on PC for arc56 -->
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+
+
+    </div>
+    </body>
+</html>

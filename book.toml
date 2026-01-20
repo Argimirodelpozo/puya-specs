@@ -2,7 +2,7 @@
 title = "Algorand Puya Compiler Specifications"
 authors = ["Algorand Foundation"]
 description = "Puya compiler specs."
-src = "specs"
+src = "src"
 language = "en"
 text-direction = "ltr"
 

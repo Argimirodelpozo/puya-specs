@@ -1,0 +1,525 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TEAL - Algorand Puya Compiler Specifications</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Puya compiler specs.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="shortcut icon" href="favicon-f6a849ea.png">
+        <link rel="stylesheet" href="css/variables-db8bf248.css">
+        <link rel="stylesheet" href="css/general-8f6c052e.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-2b6da33f.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-aba8760a.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "dark";
+            window.path_to_searchindex_js = "searchindex-678e44bd.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-0c348650.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-dark">Dark</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Algorand Puya Compiler Specifications</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Argimirodelpozo/puya-specs" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="teal-layer-avm-code-or-final-lowering"><a class="header" href="#teal-layer-avm-code-or-final-lowering">TEAL layer (AVM code or “final” lowering)</a></h1>
+<p>The MIR program is consumed by mir_to_teal(.), where the program “main” subroutine is built first.
+Then, each of the other “subroutines” are built.</p>
+<p>Optionally, the TEAL at this intermediate, unoptimized stage is output, tagged as “lowered”.</p>
+<p>Then optimizations are run on the lowered TEAL. Note that there are many optimizations here
+that are run regardless of optimization level.</p>
+<p>Finally the transformed full TEAL program is returned.</p>
+<h1 id="lowering-from-mir"><a class="header" href="#lowering-from-mir">Lowering from MIR</a></h1>
+<p>The <a href="TODO_LINK">main algorithm</a> for this lowering does the following:
+(TODO:pseudocode)</p>
+<pre><code class="language-python">def mir_to_teal(
+    context: ArtifactCompileContext, program_mir: mir.Program
+) -&gt; teal_models.TealProgram:
+    main = TealBuilder.build_subroutine(
+        program_mir.main, slot_allocation=program_mir.slot_allocation
+    )
+    subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in program_mir.subroutines]
+    teal = teal_models.TealProgram(
+        kind=program_mir.kind,
+        avm_version=program_mir.avm_version,
+        main=main,
+        subroutines=subroutines,
+    )
+    maybe_output_intermediate_teal(context, teal, qualifier="lowered")
+    initial_check_set = _collect_explicit_checks(teal)
+    optimize_teal_program(context, teal)
+    post_allocation_check_set = _collect_explicit_checks(teal)
+    for check_data, initial_count in initial_check_set.items():
+        # less than rather than != since we can duplicate ops for inlining
+        if post_allocation_check_set.get(check_data, 0) &lt; initial_count:
+            raise InternalError("explicit condition check(s) removed during TEAL optimization")
+    return teal
+</code></pre>
+<p>That is, the special <code>main</code> subroutine is built first, then each subroutine in the program.</p>
+<p>A <code>TealProgram</code> structure is created with these, with the corresponding avm version and program kind (whether a stateful application or a logic signature).<br>Explicit checks (<a href="TODO_LINK"><code>Assert</code></a> and <a href="TODO_LINK"><code>Err</code></a> instructions) are collected.<br><a href="#optimizations-performed">Optimizations</a> are performed, and post-optimization explicit checks are collected again, and compared to those collected pre-optimization (see the <a href="#validations-performed">validations performed</a> section below).<br>Finally, the optimized TEAL program is output.</p>
+<h2 id="building"><a class="header" href="#building">Building</a></h2>
+<p>Most MIR nodes are lowered as a single TEAL node, which in turn almost always represent a single TEAL op.<br>Notable exceptions to this rule are MIR <code>ConditionalBranch</code> nodes (which get lowered as 2 ops. to make the fallthrough case explicit), similarly to <code>Switch</code> and <code>Match</code> nodes.</p>
+<blockquote>
+<p>[!NOTE] after building, <code>TEALBlocks</code> are no longer assured to be strict basic blocks with a single exit point.</p>
+</blockquote>
+<p>TODO: all other built models (any interesting parts)</p>
+<h3 id="conditional-branch"><a class="header" href="#conditional-branch">Conditional Branch</a></h3>
+<p>A <a href="../specs/MIR.html">MIR conditional branch node</a> gets lowered as either a <code>BranchZero</code> TEAL node or a <code>BranchNotZero</code> TEAL node, followed by a <code>Branch</code> TEAL node targeting the next block.</p>
+<blockquote>
+<p>[!INFO] Right after building but before any optimizations, an output may be obtained. The output at this stage is tagged “lowered” (for example <code>my_contract.lowered.teal</code>), and is governed by the <code>--output-intermediate-teal</code> flag.</p>
+</blockquote>
+<h2 id="intra-layer-transformations"><a class="header" href="#intra-layer-transformations">Intra-layer transformations</a></h2>
+<h1 id="optimizations-performed"><a class="header" href="#optimizations-performed">Optimizations performed</a></h1>
+<p>TODO: DIAGRAMA_O0</p>
+<p>TODO: DIAGRAMA_O1</p>
+<p>TODO: DIAGRAMA_O2</p>
+<p>The main optimization loop (in <a href="../puya/src/puya/teal/optimize/main.py">main.py</a>) executes
+for each subroutine (inlcuding <code>main</code>), already lowered into TEAL after <a href="MIR.html">MIR =&gt; TEAL lowering</a>,
+the following set of optimizations is performed in the order in which they are presented, dependant on optimization level.</p>
+<h2 id="subroutine-optimizations-at-instruction-level"><a class="header" href="#subroutine-optimizations-at-instruction-level">Subroutine optimizations at instruction level</a></h2>
+<p>These are mostly peephole optimizations performed at the instruction (op.) level. Several passes are realized until a stable program is achieved.</p>
+<p><a href="TODO_LINK">Link to reference impl.</a></p>
+<p>These passes work at the <a href="#teal-block">block level</a>, which means they are run once for each block in the subroutine, replacing and simplifying ops. <em>inside</em> a given block.</p>
+<p>After every instruction level optimization pass through a block, a quick <a href="#validations-performed">stack height validation</a> is performed for each block.</p>
+<p>A loop is in place to perform <a href="#">constant stack shuffling</a>, <a href="#">repeated rotations simplificacion</a>, and <a href="#peephole-optimizations">peephole optimizations</a>.<br>The loop works on the same block until a full pass without modifications is observed.</p>
+<h3 id="constant-stack-shuffling"><a class="header" href="#constant-stack-shuffling">Constant stack shuffling</a></h3>
+<h3 id="repeated-rotations-simplification"><a class="header" href="#repeated-rotations-simplification">Repeated rotations simplification</a></h3>
+<h2 id="peephole-optimizations"><a class="header" href="#peephole-optimizations">Peephole optimizations</a></h2>
+<p>These are optimizations that replace teal patterns for other, more budget-efficient or bytecode-succint patterns.</p>
+<p>There are windows of one, two, three and four opcodes respectively that will be used.
+They will appear sequentially in order of window size.</p>
+<p>Some preliminary definitions:</p>
+<ul>
+<li><code>{COMM_OP}</code> is a commutative op. One of
+<code>[       "+",       "*",       "&amp;",       "&amp;&amp;",       "|",       "||",       "^",       "==",       "!=",       "b*",       "b+",       "b&amp;",       "b|",       "b^",       "b==",       "b!=",       "addw",       "mulw" ]</code></li>
+<li><code>{SWAP_OP}</code> is a stack swap op. One of
+<code>[       "swap",       "cover 1",       "uncover 1" ]</code></li>
+</ul>
+<p>By size of the peephole window defined, we have the following optimizations performed.</p>
+<h3 id="singles"><a class="header" href="#singles">Singles:</a></h3>
+<p>Note that all of these are performed at all opt. levels (even -O0).</p>
+<ul>
+<li><code>arg n</code> -&gt; <code>arg_n</code> (for <code>n &lt;= 3</code>).</li>
+<li><code>cover 0</code> -&gt; []. Also <code>uncover 0</code> -&gt; [].</li>
+<li><code>dig 0</code> -&gt; <code>dup</code>.</li>
+<li><code>popn 1</code> -&gt; <code>pop</code>.</li>
+</ul>
+<h3 id="pairs"><a class="header" href="#pairs">Pairs:</a></h3>
+<p>Note that all of these are performed even at -O0.</p>
+<ul>
+<li>
+<p>Redundant rotation removal. This encompasses:
+1) <code>cover n; uncover n;</code> -&gt; [].
+2) <code>uncover n; cover n;</code> -&gt; [].
+3) <code>swap; swap;</code> -&gt; [].
+4) <code>swap; cover 1;</code> -&gt; [].
+5) <code>swap; uncover 1;</code> -&gt; [].
+6) <code>cover 1; swap;</code> -&gt; [].
+7) <code>cover 1; cover 1;</code> -&gt; [].
+8) <code>cover 1; uncover 1;</code> -&gt; []. (already transformed in 1st rule).
+9) <code>uncover 1; swap;</code> -&gt; [].
+10) <code>uncover 1; cover 1;</code> -&gt; []. (already transformed in 1st rule).
+11) <code>uncover 1; uncover 1;</code> -&gt; [].</p>
+</li>
+<li>
+<p>Any stack swap followed by a <code>pop</code> is replaced by a <code>bury 1</code>:
+1) <code>swap; pop</code> -&gt; <code>bury 1</code>.
+2) <code>cover 1; pop</code> -&gt; <code>bury 1</code>.
+3) <code>uncover 1; pop</code> -&gt; <code>bury 1</code>.</p>
+</li>
+<li>
+<p>Any stack swap followed by a commutative op is replaced by just the op by itself. Like this:
+<code>{SWAP_OP}; {COMM_OP}</code> -&gt; <code>{COMM_OP}</code>.</p>
+</li>
+<li>
+<p><code>frame_dig n; frame_bury n</code> -&gt; [].</p>
+</li>
+<li>
+<p><code>frame_bury n; frame_dig n</code> -&gt; <code>dup; frame_bury_n;</code>.</p>
+</li>
+<li>
+<p><code>dup; {SWAP_OP}</code> -&gt; <code>dup</code>. Also <code>dupn; {SWAP_OP}</code> -&gt; <code>dupn</code>.</p>
+</li>
+<li>
+<p><code>dup; pop</code> -&gt; [].
+(TODO: complete!)</p>
+</li>
+<li>
+<p><code>dig 1; dig 1</code> -&gt; <code>dup2</code>.</p>
+</li>
+<li>
+<p><code>int 0; return -&gt; err</code>.</p>
+</li>
+<li>
+<p>Any stack swap operations followed by binary ordering operations are reversed. Like this:
+<code>{SWAP_OP}; {BIN_ORD_OP}</code> -&gt; <code>{flip(BIN_ORD_OP)}</code>, where <code>flip()</code> finds usage of <code>&gt;</code> or <code>&lt;</code> and
+inverts them (e.g. <code>&gt;=</code> becomes <code>&lt;=</code>).</p>
+</li>
+</ul>
+<h3 id="triplets"><a class="header" href="#triplets">Triplets:</a></h3>
+<p>If any of the ops in the analysis triplet is a <code>frame_dig</code> operation, a special analysis is performed.</p>
+<!-- TODO explain frame_dig analysis and why its relevant-->
+<ul>
+<li>
+<p><code>'cover 3; cover 3; {SWAP_OP}</code> -&gt; <code>uncover 2; uncover 3</code>
+Proof: …</p>
+</li>
+<li>
+<p><code>uncover 2; {SWAP_OP}; uncover 2</code> -&gt; <code>swap</code>
+Proof: …</p>
+</li>
+</ul>
+<p>TODO: complete</p>
+<h3 id="quadruplets"><a class="header" href="#quadruplets">Quadruplets:</a></h3>
+<p>TODO</p>
+<blockquote>
+<p>[!INFO] after the set of <a href="#subroutine-op-optimizations">op. level optimizations</a> is run, an optional intermediate output may be emitted, with the qualifier <em>“peephole”</em> (e.g. <code>my_contract.peephole.teal</code>).</p>
+</blockquote>
+<h2 id="subroutine-block-optimizations"><a class="header" href="#subroutine-block-optimizations">Subroutine Block optimizations</a></h2>
+<blockquote>
+<p>[!INFO] this set of optimizations is only performed on optimization levels <code>O1</code> and <code>O2</code>.</p>
+</blockquote>
+<p>Most of the subroutines in this pass deal with getting rid of jumps by inlining when possible. We simplify chains of single unconditional jump instruction blocks,…
+TODO: complete intro</p>
+<h3 id="inline-optimizations-jump-chains"><a class="header" href="#inline-optimizations-jump-chains">Inline optimizations: jump chains</a></h3>
+<p>Consider now the set of all blocks $b$ that are a single unconditional <code>Branch</code> to a target, have no stack manipulations associated, and are not the entry block.\</p>
+<p>We remove these from the subroutine blocks, keeping track of the link between original block label and their target.</p>
+<p>Now, for every jump chain $b_0 =&gt; b_1 =&gt; … =&gt; b_n$, we backpropagate in order to have every $b_0, b_1…b_{n-1} =&gt; b_n$, mapping their unique identifying labels to the last on the chain.</p>
+<p>After we have simplified all possible chains, we traverse all instructions inside the subroutine. For every jump instruction (<code>Branch</code>, <code>BranchNonZero</code>, <code>BranchZero</code>, <code>Switch</code> and <code>Match</code>) targetting any element in a chain, we replace the target by the last element.</p>
+<h3 id="inline-optimizations-single-instruction-blocks"><a class="header" href="#inline-optimizations-single-instruction-blocks">Inline optimizations: single instruction blocks</a></h3>
+<p>TODO: complete</p>
+<h3 id="inline-optimizations-singly-referenced-blocks"><a class="header" href="#inline-optimizations-singly-referenced-blocks">Inline optimizations: singly referenced blocks</a></h3>
+<p>TODO: complete</p>
+<h3 id="replacement-of-subroutine-invocations-for-branches"><a class="header" href="#replacement-of-subroutine-invocations-for-branches">Replacement of subroutine invocations for branches</a></h3>
+<p>For a given subroutine, we iterate over all instructions. If a given <code>callsub</code> op. is found, and the jump target subroutine is determined to be “branchable” (see above for the definition), the operation is replaced by a hard branch (<code>b</code>, represented in this layer by the <a href="#TODO_branch"><code>Branch</code></a> node) to the same jump target.</p>
+<h3 id="inline-jump-chains"><a class="header" href="#inline-jump-chains">Inline jump chains</a></h3>
+<p>TODO: this one is repeated, but is the same as above. Should we keep it here?</p>
+<h3 id="remove-jump-fallthroughs"><a class="header" href="#remove-jump-fallthroughs">Remove jump fallthroughs</a></h3>
+<p>As per the building process, <a href="#TODO_LINK_MIR">MIR Conditionals</a>, as well as [Match] and [Switch] MIR nodes, generate explicit fallthrough hard branches (<code>b</code>, represented as <code>Branch</code> in this layer). These fallthroughs are useful for some analysis, but have no impact in control flow as the natural opcode evaluation order would trivially flow into the next line. Therefore, they are trivially removable at this stage.<br>Consider every pair of consecutive blocks $b0, b1$. whenever the last instruction in $b0$ is a <code>Branch</code> (unconditional branch) and the jump target is the unique identifying label of $b1$, we remove the branch operation from $b0$.</p>
+<p>TODO: what happens if I have an explicit branch to the label right next to it? Should we protect against this by making sure the branch is a fallthrough (e.g. check that the instruction right before is a bz or bnz)?</p>
+<p>TODO: understand stack manipulations guard case for O0</p>
+<h2 id="constant-gathering"><a class="header" href="#constant-gathering">Constant gathering</a></h2>
+<blockquote>
+<p>[!INFO] this optimization is performed on all optimization levels (<code>O0</code>, <code>O1</code> and <code>O2</code>).</p>
+</blockquote>
+<blockquote>
+<p>[!NOTE] this optimization is needed in <code>O0</code> because, due to ARC56, template variables need to be gathered into constant blocks for pc offset calculations. See the <a href="TODO_LINK">ARC56 standard</a> for further details.</p>
+</blockquote>
+<h2 id="combine-pushes"><a class="header" href="#combine-pushes">Combine pushes</a></h2>
+<blockquote>
+<p>[!INFO] this is only done for optimization levels <code>O1</code> and <code>O2</code>.</p>
+</blockquote>
+<p>If there is any sequence of consecutive <code>pushint</code> or <code>pushbytes</code> operations present in any block, in any subroutine,
+they are compressed into a <code>pushints</code> or <code>pushbytess</code> respectively. In the case of <code>pushbytess</code>, byte encodings are preserved for each value. Comments are comma-concatenated accordingly.
+TODO: example</p>
+<!-- def optimize_teal_program(
+    context: ArtifactCompileContext, teal_program: models.TealProgram
+) -> None:
+    # O0 will still remove some redundant ops to ensure a feasible program size
+    for teal_sub in teal_program.all_subroutines:
+        _optimize_subroutine_ops(context, teal_sub)
+    maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
+
+    if context.options.optimization_level > 0:
+        branchable_subroutine_entry_blocks = {
+            sub.blocks[0].label
+            for sub in teal_program.all_subroutines
+            if _is_branchable_subroutine(sub)
+        }
+
+        for teal_sub in teal_program.all_subroutines:
+            _optimize_subroutine_blocks(context, teal_sub, branchable_subroutine_entry_blocks)
+        maybe_output_intermediate_teal(context, teal_program, qualifier="block")
+
+    gather_program_constants(teal_program)
+    if context.options.optimization_level > 0:
+        combine_pushes(teal_program) -->
+<h1 id="validations-performed"><a class="header" href="#validations-performed">Validations performed</a></h1>
+<p>In this layer, validations are incorporated and performed after certain key optimizing passes in order to ensure properties like stack consistency, or the survival of checks marked as <em>explicit</em>.</p>
+<h2 id="unexpected-nodes-during-construction"><a class="header" href="#unexpected-nodes-during-construction">Unexpected nodes during construction</a></h2>
+<!-- TODO: fill these out -->
+<h2 id="stack-height-validation-teal-block-level"><a class="header" href="#stack-height-validation-teal-block-level">Stack height validation (TEAL block level)</a></h2>
+<p>The block ops. are traversed in order. The condition checked is:<br>$entry_stack_height + sum op.produces - op.consumes = exit_stack_height$,
+and also the series of partial sums obtained by sequentially subtracting <code>op.consumes</code> may never be less than zero (implying a stack underflow error was introduced by an optimization).</p>
+<p>Note that blocks whose terminator are program/subroutine exit ops. (<code>return</code>, <code>retsub</code> and <code>err</code>) will discard all extra elements in stack and therefore constitute the only exceptions to the aforementioned condition.</p>
+<p><a href="TODO">LINK TO REFERENCE IMPL</a></p>
+<h2 id="explicit-check-invariance"><a class="header" href="#explicit-check-invariance"><em>Explicit check</em> invariance</a></h2>
+<p>After lowering and before running optimization passes, an initial set of explicit checks is collected (see above in the build section). An explicit check is an <code>Assert</code> or <code>Err</code> TEAL model that has been marked as such, and thus will have an internal flag set to True when built.
+The collection algorithm simply tallies the amount of explicit checks by subroutine.
+After all <a href="#optimizations-performed">optimization passes</a> are performed, explicit checks are collected again.
+A decrease in explicit checks for a given subroutine means an optimization has been semantically destructive for the purpose of this validation, and will thus fail compilation.</p>
+<blockquote>
+<p>[!NOTE] the word <em>decrease</em> hides a subtlety here; consider that ops may be duplicated on <a href="#optimizations-performed">inlining</a>, and thus there could be <em>more</em> explicit checks after optimization.</p>
+</blockquote>
+<h1 id="teal-layer-nodes"><a class="header" href="#teal-layer-nodes">TEAL Layer nodes</a></h1>
+<p>The IR instructions in this layer are a quite close model of AVM TEAL ops, save for structural containers and template variables which are not part of AVM intrinsics.</p>
+<p>Consider a stack, modelled as a list of local ids, which are strings that represent local variables.</p>
+<p>We define 5 kinds of stack manipulations:</p>
+<ul>
+<li><code>StackConsume</code>: takes <code>n</code> elements off the top of the stack.</li>
+<li><code>StackExtend</code>: adds a sequence of local id’s to the top of the stack.</li>
+<li><code>StackDefine</code>: considering the set of unique variables in the stack, it performs a set intersection with the given elements, returning an extended set.</li>
+<li><code>StackInsert</code>: inserts a local id at a given stack <code>depth</code>. For a given stack $s$, the insertion index is computed as $idx = |s| - depth$.</li>
+<li><code>StackPop</code>: pops the stack at the specified <code>depth</code>. The index of the eliminated element is computed as $idx = |s| - depth - 1$</li>
+</ul>
+<p>Note that in this layer, the nodes/models of the resulting language represent TEAL opcodes of the latest AVM version. An abstract opcode is modelled using the following fields:
+(link to TealOp class)</p>
+<ul>
+<li>a string containing the opcode name</li>
+<li>a pair of unsigned integers representing the consumption and production of vals from stack</li>
+</ul>
+<p>and optionally:</p>
+<ul>
+<li>a source location in code (see common reference)</li>
+<li>a comment to be emmitted after the op in the resulting TEAL</li>
+<li>an error message to be emmited when/if the program fails trying to execute this op</li>
+<li>a sequence of stack manipulations (…)</li>
+</ul>
+<!-- ```python
+class TealOp:
+    op_code: str
+    consumes: int
+    produces: int
+    source_location: SourceLocation | None = attrs.field(eq=False)
+    comment: str | None = None
+    """A comment that is always emitted after the op in TEAL"""
+    error_message: str | None = None
+    """Error message to display if program fails at this op"""
+    stack_manipulations: Sequence[StackManipulation] = attrs.field(
+        default=(),
+        converter=tuple[StackManipulation, ...],
+        eq=False,
+    )
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return ()
+
+    def teal(self) -> str:
+        teal_args = [self.op_code, *map(str, self.immediates)]
+        if self.comment or self.error_message:
+            error_message = (
+                format_error_comment(self.op_code, self.error_message)
+                if self.error_message
+                else ""
+            )
+            comment_lines = error_message.splitlines()
+            comment_lines += (self.comment or "").splitlines()
+            comment = "\n//".join(comment_lines)
+            teal_args.append(f"// {comment}")
+        return " ".join(teal_args)
+
+    @property
+    def stack_height_delta(self) -> int:
+        return self.produces - self.consumes
+``` -->
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="MIR.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ussemble.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="MIR.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ussemble.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

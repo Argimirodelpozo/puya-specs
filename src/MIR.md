@@ -14,36 +14,37 @@ The following document attempts an exhaustive explanation of lowering from IR to
 <!-- Having this region preserved in the stack is useful for most allocations that don't fit any of the other two regions.
 TODO: improve explanation of f-stack -->
 
-TODO: pseudocode
 # MIR main algorithm
 
-```py
-#TODO: function prototype. Input=IRProgram: IR.Program, context. Output: MIR.Program
-    main = lower_main_to_mir(IRProgram.main)
-    for s in IRProgram.subroutines:
-        subroutines = [lower_subroutine_to_mir(s)]
-    if IRProgram.slot_allocation_strategy is dynamic:
-        slot_alloc = ...
-        subroutines.append(build_new_slot_sub(IRProgram)) #TODO: notation here for a single f call
-    result <= MIR.Program(IRProgram.kind, main, subroutines, slot_alloc)
-    result <= globalStackAllocation(result)
-    return result
+The following diagram shows the MIR pipeline schematically.
+```mermaid
+flowchart TD
+    A[Start] --> B[lower_main_to_mir(IRProgram main)]
+    B --> C[Iterate IRProgram subroutines]
+    C --> D[lower_subroutine_to_mir(s)]
+    D --> C
+
+    C --> E{slot_allocation_strategy == dynamic?}
+    E -- Yes --> F[Add special slot allocation subroutine]
+    E -- No --> G[Skip]
+
+    F --> H[Construct MIR.Program(kind, main, subroutines, slot_alloc)]
+    G --> H
+
+    H --> I[Apply globalStackAllocation(result)]
+    I --> J[Return result]
 ```
+> Link to reference implementation [here](TODO_LINK).
 
 In the [building phase](#ir--mir-lowering), each subroutine in the IR [`Program`](IR.md#full-models-reference) input is lowered, starting with main as a special case.\
 Then each non-main subroutine is built.\
-At the end of the building process, and only in the case of `slot allocation strategy` set to `dynamic`, we build the slot allocation and append a special slot building subroutine at the end of the subroutine list.\
+At the end of the building process, and only in the case of `slot allocation strategy` set to `dynamic`, we build the slot allocation and append a special slot building subroutine at the end of the subroutine list.
 
-Finally, the `global stack allocation` algorithm is performed, constructing each stack region according to the required optimization level, and materialising all `AbstractLoad` and `AbstractStore` operations in the process.\
+Finally, the `global stack allocation` algorithm is performed, constructing each stack region according to the required optimization level, and materialising all `AbstractLoad` and `AbstractStore` operations in the process.
 
 After this, we get the final output ready to continue down the pipeline to the [TEAL](TEAL.md) stage.
 
 # IR => MIR lowering
-
->[!Warning]
->There is a series of IR nodes that are unexpected at this stage and will thus fail upon attempted visitation:
->- Phi Nodes (TODO: link). These should have been processed after getting out of SSA during [destructuring](IR.md#ssa-destructuring).
->- TODO: complete
 
 ## Slot allocation strategy
 TODO: slot allocation expl. goes here
@@ -339,12 +340,13 @@ There is a single optimization function, a peephole optimizer with a window of s
 
 For the optimization pass, it's crucial to first perform a subroutine-wide variable lifetime analysis.
 
-## Variable lifetime analysis
+## Variable lifetime analysis [^1]
+
+[^1]: this section is heavily based on https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf
 
 We say that a variable is _live_ if it holds a value that will/might be used in the future.
-(https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf).
 
-In the subsequent analysis, a node `n` is any [MIR instruction](#full-models-reference).
+In the subsequent analysis, a node `n` represents an [MIR instruction](#full-models-reference). The relevant nodes for this analysis are `AbstractStore` and `AbstractLoad`.
 
 We define the following sets:
 
@@ -362,8 +364,6 @@ The sets satisfy the following two equations:
 
 `out[n]` $=$ $\cup$ \{ `in[s]` $|$ `s` $\in$ `succ[n]` \}
 
-The relevant nodes for this analysis are `AbstractStore` and `AbstractLoad`.
-
 Furthermore, a node `n'` that is an `AbstractStore` is a *dead store* if the variable to which it stores `v` (identified solely by its local id) is such that:
 
 `v` $\notin$ `out[n']`.
@@ -374,7 +374,7 @@ In other words, the target store variable `v` is not live-out for `n'`, which me
 TODO: explain
 
 ## Dead store removal (l-stack case)
-TODO: isolate when this happens in l-stack construction and describe
+<!-- TODO: isolate when this happens in l-stack construction and describe -->
 
 ## Peephole optimizations
 We define a peephole window of size 2, meaning the peephole optimizer will consider _pairs_ of operations inside each [basic block](#memorybasicblock).
@@ -457,11 +457,33 @@ The resulting pattern is then an empty tuple `()`, as both elements of the pair 
 TODO: illustrative example
 
 # Validations performed
-TODO: isolate all validations
+
+## Unexpected nodes
+<!-- TODO: for this section, explain briefly what each of these should have turned into at this stage -->
+There is a series of [IR](IR.md#full-models-reference) nodes that should not be found during construction of the MIR program. This constitutes an implicit validation: by finding one of these at this stage, we know that the pipeline has failed at some point during the previous stage, and thus emit an `error` and fail compilation upon attempted visitation.
+
+- `CompiledContractReference` and `CompiledLogicSigReference`
+<!-- TODO: explain what they turned into and link -->
+
+- `ValueTuple` nodes should have been split into their constituting values
+<!-- TODO: link and double check -->
+
+- `ItxnConstant`, `SlotConstant`, and `InnerTransactionField`
+
+- `BytesEncode` and `DecodeBytes` should have been resolved in the prior stage
+
+- Box write and read operations (`BoxWrite` and `BoxRead`)
+
+- `ArrayLength`, `ExtractValue` and `ReplaceValue`
+
+- [`Phi`](IR.md#full-models-reference) and `PhiArgument` nodes. These should have been either resolved during IR building by virtue of being [trivial](IR.md#trivial-phi), or after getting out of SSA during [destructuring](IR.md#ssa-destructuring) for non-trivial ones.
+
+<!-- TODO: complete all validations, implicit and explicit -->
 
 ## F-Stack pre-allocation AVM Type
 The f-stack pre-allocation variables should all be either `uint64` or `bytes` typed. `any` AVM types will raise an error at this stage.
-TODO: link to where this validation happen and explain a bit better why this is
+<!-- TODO: link to where this validation happen and explain a bit better why this is -->
+<!-- TODO: after construction? -->
 
 # Full models reference
 In this section we provide the [full set of nodes expressible in MIR](https://github.com/algorandfoundation/puya/blob/main/src/puya/mir/models.py).
@@ -684,22 +706,3 @@ TODO: link every location where the output is made.
 Stack description for l-stack operations is just as is, with comma separated values, where the last values are the top of the stack and the first values are the bottom of the stack.
 
 Stack description for P, F, X come after (...)
-
-## Theoretical basis for global stack allocation
-TODO: high level review of shannon-bailey
-
-### e-stack
-
-### p-stack
-
-### l-stack
-
-### x-stack
-
-### Koopman's algorithm
-
-### Bailey's algorithm
-
-### Comment on global stack allocation
-<!-- > Divergence from the original paper:
-> No usage of p-stack and e-stack -->

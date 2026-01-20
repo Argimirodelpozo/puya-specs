@@ -1,45 +1,73 @@
 # Abstract Wyvern Syntax Tree (entry to compiler)
 
-The first intermediate representation in the compiler is a tree-like structure,
-akin to an AST. It is built so that it "normalizes" what is expressible for the compiler backend.
-
-## 
-
-# Optimizations performed
+The first intermediate representation in the compiler is a tree-like structure, akin to an AST. It is built so that it "normalizes" what is expressible for the compiler backend.
+<!-- TODO: improve general description -->
 
 
 # Validations performed
 
->[REF_IMPL] Most explicit validation is carried in here: link
-```py
-def validate_awst(module: awst_nodes.AWST) -> None:
-    InnerTransactionsValidator.validate(module)
-    InnerTransactionUsedInALoopValidator.validate(module)
-    StaleInnerTransactionsValidator.validate(module)
-    BaseInvokerValidator.validate(module)
-    StorageTypesValidator.validate(module)
-    LabelsValidator.validate(module)
-    ImmutableValidator.validate(module)
-    AbiMethodNameValidator.validate(module)
-```
-> [!NOTE] there are also several validators for specific fields in AWST node constructions. For the sake of clarity, you may find these small, specific subroutines in each relevant node's section in the [full node reference](#awst-node-reference). 
+The following is a series of validations performed on a finished AWST. They are generally simple in nature, and implemented as visitors for specific [nodes](#awst-node-reference). They are run singularly, sequentially, and in the order in which they are presented in this specification.
 
-## Inner transactions general validation
+> You may find the function that performs AWST validations [here](TODO_LINK) in the Puya implementation.
+
+> [!NOTE] there are also several validators for specific fields in AWST node constructions. For the sake of clarity, we include those small, specific subroutines in each relevant node's section in the [full node reference](#awst-node-reference).
+
+## Inner transactions (general) validation
+<!-- TODO: explain -->
 
 ## Inner transactions in loop validation
+<!-- TODO: explain -->
 
 ## Stale inner transactions validation
+<!-- TODO: explain -->
 
 ## Base invoker validation
-TODO: link base_invoker.py
+We traverse `SubroutineCallExpressions`, both inside and outside contracts, and keeping track of the contract class being currently visited.\ 
+
+To validate each of these, we skip `SubroutineID` target calls, as these are always valid (consider how a "free" module-level subroutine may be called from inside or outside a contract).\
+
+for targets that are instance methods of either a contract or any base class of a contract (`InstanceMethodTarget` and `SuperInstanceMethodTarget` respectively), if they are used outside of a contract method, then the compiler emits and `error` and compilation fails.\
+
+Finally, for call targets that are contract methods (`ContractMethodTarget`) we check that the call happens inside the context of a caller contract class and that the target base contract is either the caller contract class, or some parent contract in the current method resolution order.\
+Otherwise, this is either another instance of a contract method being invoked outside of the context of a contract, or an invocation outside of the current hierarchy, and therefore is invalid (failing compilation with an `error`).
 
 ## Storage types validation
+<!-- TODO: explain -->
 
 ## Labels validation
+This validator centers around all `Label`s in an AWST, from now on refered to as "labels".\
+It checks for label existance (`Goto` nodes can't target inexistant labels) and for label uniqueness (in the context of a given module-level `Subroutine` or an externally callable contract function, `ContractMethod`).
+
+> [!NOTE]
+> Implementation-wise, a `Label` in this layer is just a type rename of a python native `str`.
+
+<!-- > [!NOTE] in TEAL, labels must be unique for a single contract file. However, the compiler will inject 'function context' into labels down the pipeline. TODO: improve explanation, is it correct? -->
+
+We traverse the AWST, instantiating independant visitors for both every module level subroutine (`Subroutine` nodes found outside of any classes as module statements) and for every method inside of a contract.\
+
+The function body is visited at the `Block` level, keeping track of labels associated to each block. If they are not unique (i.e. have been seen before in the same function context), an `error` is logged and compilation fails.\
+
+Furthermore, the validator visits all `Goto` nodes at the block statement level. If a `Goto` node is found whose target label is not present in any block in the current function, an `error` is logged and compilation fails.
 
 ## Immutability validation
+<!-- TODO: explain -->
 
 ## ABI method name validation
+> [!INFO]
+> The regular expression for ARC4 compliant method names is
+>```regexp
+>"^[_A-Za-z][A-Za-z0-9_]*$"
+>```
+>you may refer to the [ARC4 specification](TODO_LINK) for more details.
+
+We traverse the AWST, looking for `ContractMethod` nodes and `MethodConstant` nodes.\
+
+For the first one, if it constitues an ARC4 method, then it must have an `ARC4ABIMethodConfig` node associated.\
+We validate its name against the ARC4 regular expresion.
+
+For the second one, we consider the `MethodSignature` node associated to it, and validate the name in this signature against the aforementioned regular expression.
+
+Note that the compiler emits a `warning` log for each instance found of a method name that is not ARC4 compliant, but it will not fail compilation solely because of this (unless compiling with the `--treat-warnings-as-errors` option).
 
 
 # Type system (WTypes)
@@ -446,3 +474,6 @@ For each, we also give its representation in the `awst` human readable output fi
 - `Contract` (implements `RootNode`)
 
 ---
+
+# Appendix: Output reading guide
+<!-- TODO: complete with non-json AWST output reading pointers -->

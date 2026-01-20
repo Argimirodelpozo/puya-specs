@@ -232,6 +232,8 @@ TODO: understand stack manipulations guard case for O0
 ## Constant gathering
 > [!INFO] this optimization is performed on all optimization levels (`O0`, `O1` and `O2`).
 
+> [!NOTE] this optimization is needed in `O0` because, due to ARC56, template variables need to be gathered into constant blocks for pc offset calculations. See the [ARC56 standard](TODO_LINK) for further details.
+
 
 
 
@@ -270,6 +272,9 @@ TODO: example
 
 # Validations performed
 In this layer, validations are incorporated and performed after certain key optimizing passes in order to ensure properties like stack consistency, or the survival of checks marked as _explicit_.
+
+## Unexpected nodes during construction
+<!-- TODO: fill these out -->
 
 ## Stack height validation (TEAL block level)
 The block ops. are traversed in order. The condition checked is:\

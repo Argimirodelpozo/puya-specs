@@ -1,48 +1,45 @@
 # TEAL layer (AVM code or "final" lowering)
+<!-- TODO: intro -->
+The TEAL layer is the code generation stage of the compiler pipeline. The output on this stage is valid [TEAL code](TODO_LINK_SPECS), which may be assembled into deployable bytecode by means of the [ussemble](assemble.md) stage, or by the `algod` assemble remote procedure, and executed in the Algorand Virtual Machine.\
 
-The MIR program is consumed by mir_to_teal(.), where the program "main" subroutine is built first.
-Then, each of the other "subroutines" are built.
+In the following sections we will cover the process of constructing valid TEAL code from a `MIRProgram` (output by the previous stage).
 
-Optionally, the TEAL at this intermediate, unoptimized stage is output, tagged as "lowered".
 
-Then optimizations are run on the lowered TEAL. Note that there are many optimizations here
+# Lowering from MIR
+The MIR program is consumed by `mir_to_teal(.)`, where the program's `main` subroutine is built first.
+Then, each of the other subroutines are built.
+> [Link to reference implementation](TODO_LINK)
+
+Optionally, the TEAL at this intermediate, unoptimized stage is output, tagged as `"lowered"`.
+
+Then optimizations are run on the lowered TEAL. Note that there are some optimizations here
 that are run regardless of optimization level.
 
 Finally the transformed full TEAL program is returned.
 
-
-# Lowering from MIR
 The [main algorithm](TODO_LINK) for this lowering does the following:
-(TODO:pseudocode)
-```python
-def mir_to_teal(
-    context: ArtifactCompileContext, program_mir: mir.Program
-) -> teal_models.TealProgram:
-    main = TealBuilder.build_subroutine(
-        program_mir.main, slot_allocation=program_mir.slot_allocation
-    )
-    subroutines = [TealBuilder.build_subroutine(mir_sub) for mir_sub in program_mir.subroutines]
-    teal = teal_models.TealProgram(
-        kind=program_mir.kind,
-        avm_version=program_mir.avm_version,
-        main=main,
-        subroutines=subroutines,
-    )
-    maybe_output_intermediate_teal(context, teal, qualifier="lowered")
-    initial_check_set = _collect_explicit_checks(teal)
-    optimize_teal_program(context, teal)
-    post_allocation_check_set = _collect_explicit_checks(teal)
-    for check_data, initial_count in initial_check_set.items():
-        # less than rather than != since we can duplicate ops for inlining
-        if post_allocation_check_set.get(check_data, 0) < initial_count:
-            raise InternalError("explicit condition check(s) removed during TEAL optimization")
-    return teal
+```mermaid
+flowchart TD
+  A([Start]) --> B[build main subroutine]
+  B --> C[for each subroutine sub in MIRProgram:<br/>Build sub]
+  C --> D[construct TealProgram]
+  D --> E{intermediate output?} 
+  E -- Yes --> F[output teal tag lowered] 
+  E -- No --> G[initial check set]
+  F --> G[initial check set]
+  G --> H[optimize TealProgram]
+  H --> I[final check set]
+  I --> J{sizeof initial check set > sizeof final check set ?} 
+  J -- Yes --> K[FAIL]
+  J -- No --> L[return tealProgram]
 ```
+<!-- TODO: improve diagram syntax. Right now a placeholder -->
 
 That is, the special `main` subroutine is built first, then each subroutine in the program.
 
-A `TealProgram` structure is created with these, with the corresponding avm version and program kind (whether a stateful application or a logic signature).\
-Explicit checks ([`Assert`](TODO_LINK) and [`Err`](TODO_LINK) instructions) are collected.\
+A [`TealProgram`](#teal-layer-nodes) structure is created with these, with the corresponding avm version and program kind (whether a stateful application or a logic signature).
+
+Explicit checks ([`Assert`](#teal-layer-nodes) and [`Err`](#teal-layer-nodes) instructions) are collected.\
 [Optimizations](#optimizations-performed) are performed, and post-optimization explicit checks are collected again, and compared to those collected pre-optimization (see the [validations performed](#validations-performed) section below).\
 Finally, the optimized TEAL program is output.
 
@@ -51,6 +48,21 @@ Most MIR nodes are lowered as a single TEAL node, which in turn almost always re
 Notable exceptions to this rule are MIR `ConditionalBranch` nodes (which get lowered as 2 ops. to make the fallthrough case explicit), similarly to `Switch` and `Match` nodes.
 
 > [!NOTE] after building, `TEALBlocks` are no longer assured to be strict basic blocks with a single exit point.
+<!-- TODO: explain exceptions -->
+
+<!-- Furthermore, as the `MIR` stage output is very close to a one to one mapping of TEAL code, many  -->
+
+### `MIR.MemorySubroutine` to `TealSubroutine`
+The main driver of the building process, this process is carried out for each subroutine in the `MIRProgram`.
+In pseudocode, for a given `MemorySubroutine` `ms`:
+
+<!-- TODO: finish pseudocode -->
+```python
+    TealSubroutine out
+    if needsProto(ms):
+        out.blocks = [protoBlock]
+```
+The first stage 
 
 
 TODO: all other built models (any interesting parts)
@@ -60,9 +72,6 @@ TODO: all other built models (any interesting parts)
 A [MIR conditional branch node](../specs/MIR.md) gets lowered as either a `BranchZero` TEAL node or a `BranchNotZero` TEAL node, followed by a `Branch` TEAL node targeting the next block.
 
 > [!INFO] Right after building but before any optimizations, an output may be obtained. The output at this stage is tagged "lowered" (for example `my_contract.lowered.teal`), and is governed by the `--output-intermediate-teal` flag.
-
-## Intra-layer transformations
-
 
 # Optimizations performed
 
@@ -282,16 +291,15 @@ $entry_stack_height + sum op.produces - op.consumes = exit_stack_height$,
 and also the series of partial sums obtained by sequentially subtracting `op.consumes` may never be less than zero (implying a stack underflow error was introduced by an optimization).
 
 Note that blocks whose terminator are program/subroutine exit ops. (`return`, `retsub` and `err`) will discard all extra elements in stack and therefore constitute the only exceptions to the aforementioned condition.
-
-[LINK TO REFERENCE IMPL](TODO)
+> [Link to reference implementation](TODO_LINK)
 
 
 ## _Explicit check_ invariance
-After lowering and before running optimization passes, an initial set of explicit checks is collected (see above in the build section). An explicit check is an `Assert` or `Err` TEAL model that has been marked as such, and thus will have an internal flag set to True when built.
-The collection algorithm simply tallies the amount of explicit checks by subroutine.
+After lowering and before running optimization passes, an initial set of explicit checks is collected (see above in the build section). An explicit check is an `Assert` or `Err` TEAL model that has been marked as such from its start in the pipeline because it comes explicitly from the user code, and thus will have an internal flag set to `True` when built.
+The collection algorithm simply tallies the amount of explicit checks by subroutine.\
 After all [optimization passes](#optimizations-performed) are performed, explicit checks are collected again.
 A decrease in explicit checks for a given subroutine means an optimization has been semantically destructive for the purpose of this validation, and will thus fail compilation.
-> [!NOTE] the word _decrease_ hides a subtlety here; consider that ops may be duplicated on [inlining](#optimizations-performed), and thus there could be _more_ explicit checks after optimization.
+> [!NOTE] the word _decrease_ hides a subtlety here; consider that ops may be duplicated on [inlining](#optimizations-performed), and thus there could be _more_ explicit checks after optimization than before.
 
 
 # TEAL Layer nodes
@@ -319,6 +327,8 @@ and optionally:
 - a comment to be emmitted after the op in the resulting TEAL
 - an error message to be emmited when/if the program fails trying to execute this op
 - a sequence of stack manipulations (...)
+
+
 
 <!-- ```python
 class TealOp:
@@ -358,3 +368,10 @@ class TealOp:
     def stack_height_delta(self) -> int:
         return self.produces - self.consumes
 ``` -->
+
+
+
+# Appendix: output reading guide
+At this stage, outputs are (optionally) produced in three parts:
+- after initial lowering but before any code transformations are performed (tagged `lowered`)
+- after peephole optimizations

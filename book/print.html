@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "dark";
-            window.path_to_searchindex_js = "searchindex-678e44bd.js";
+            window.path_to_searchindex_js = "searchindex-583c0cc9.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-0c348650.js"></script>
@@ -1933,7 +1933,8 @@ class TealOp:
     def stack_height_delta(self) -> int:
         return self.produces - self.consumes
 ``` --><div style="break-before: page; page-break-before: always;"></div>
-<h1 id="assembly-layer"><a href="#assembly-layer" class="header">Assembly layer</a></h1>
+<h1 id="assemble-stage"><a class="header" href="#assemble-stage">Assemble stage</a></h1>
+<p>The final stage of the pipeline is the assembly stage, producing compiled TEAL bytecode that may be deployed to the Algorand blockchain.<br>This stage replicates the <code>algod</code> assemble logic offline, inside the compiler.</p>
 <!-- TODO: add relevant section on PC for arc56 -->
                     </main>
 

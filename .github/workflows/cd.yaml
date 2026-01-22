@@ -2,8 +2,16 @@ name: CD
 
 on:
   push:
-    branches:
-      - master
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   ci:
@@ -14,6 +22,9 @@ jobs:
   deploy-pages:
     needs: ci
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Download built site
         uses: actions/download-artifact@v7
@@ -21,11 +32,14 @@ jobs:
           name: specs-site-master
           path: book/html
 
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      # - name: Configure Pages
+      #   uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          command: |
-            pages deploy ./book/html --project-name algorand-specs
+          path: book/html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

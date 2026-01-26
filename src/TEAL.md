@@ -75,11 +75,11 @@ A [MIR conditional branch node](../specs/MIR.md) gets lowered as either a `Branc
 
 # Optimizations performed
 
-TODO: DIAGRAMA_O0
+<!-- TODO: DIAGRAMA_O0 -->
 
-TODO: DIAGRAMA_O1
+<!-- TODO: DIAGRAMA_O1 -->
 
-TODO: DIAGRAMA_O2
+<!-- TODO: DIAGRAMA_O2 -->
 
 The main optimization loop (in [main.py](../puya/src/puya/teal/optimize/main.py)) executes
 for each subroutine (inlcuding `main`), already lowered into TEAL after [MIR => TEAL lowering](MIR.md),
@@ -97,8 +97,26 @@ After every instruction level optimization pass through a block, a quick [stack 
 A loop is in place to perform [constant stack shuffling](#), [repeated rotations simplificacion](#), and [peephole optimizations](#peephole-optimizations).\
 The loop works on the same block until a full pass without modifications is observed.
 
+Also, whenever a list of ops. have to be replaced by a new  optimized list, we have to keep track of the stack manipulations performed by the replaced ops. and append them into the new ops. in place, to guarantee stack effects are preserved.\
+This is carried in the following way:
+<!-- TODO: explain preserve_stack_manipulations() -->
+> [Link to reference implementation](TODO_LINK)
 
 ### Constant stack shuffling
+Consider now for a given block, the list of instructions that, without modifying the stack prior, add a (constant) element on top of the stack (meaning, an element that does not depend on the shape or values in the stack prior for the value that it produces; constant in terms of the stack).\
+We traverse the list of ops. in the block $b$, keeping a list of "constant loads" (ops included in the "load list") which we'll call the "load sub-stack" for the purpose of this optimization.
+
+The general concept is to traverse a given `TealBlock`s sequence of instructions in sequential order, greedily building a sub-stack of sequential "constant loads", performing the necessary transformations (and stack preserving accordingly) when encountring instances of stack manipulation in the form of `dup`, `dupn`, `cover` and `uncover`; and closing the sub-stack tally and replacing the instructions in the block whenever an op. not in the relevant group ("constant load" &\cup$ `{dup, dupn, cover, uncover}`) is found (after which a new tally is open if instructions have not been visited yet, and the pattern continues).
+
+If on an ongoing list of consecutive loads, we find a `Dup` or `Dupn` op. (modelled as an `Intrinsic` whose opcode string is a `dup` or `dupn`. See the full model section for more information), we extend the repeated loads to add 1 or `n` (respectively) repetitions of the last load in the sub-stack. We append the stack manipulations present in this duplication op. to the last load operation in the newly generated copies.
+
+If we have an ongoing list of consecutive loads, and we run into a `Cover` or `Uncover` op, and this op. is modifying the current sub-stack of loads (its immediate is such that it is less than the length of this ad-hoc constructed sub-stack), we modify the loads list accordingly (popping and pushing the uncovered value, or popping the last load and inserting it into the appropriate place for a covered value).
+
+Finally, if the op found is not a "load", not a `Cover` or`Uncover`, and not a `Dup` or `Dupn`, we have a stack of constant loads with its transformations.
+We attempt to   X    while preserving stack manipulations of the group as a whole.
+We then continue iterating and assembling a new sub-stack of loads from where we left.
+
+<!-- TODO: example -->
 
 
 ### Repeated rotations simplification
@@ -196,6 +214,16 @@ TODO: complete
 TODO
 
 > [!INFO] after the set of [op. level optimizations](#subroutine-op-optimizations) is run, an optional intermediate output may be emitted, with the qualifier _"peephole"_ (e.g. `my_contract.peephole.teal`).
+
+## Constant `dupn` and `dup2` insertion
+
+
+## Repeated rotation ops. search
+
+
+## Swap operations simplification
+
+
 
 
 ## Subroutine Block optimizations
@@ -328,46 +356,10 @@ and optionally:
 - an error message to be emmited when/if the program fails trying to execute this op
 - a sequence of stack manipulations (...)
 
+## `TealOp.` nodes
 
+## `ControlOp.` nodes
 
-<!-- ```python
-class TealOp:
-    op_code: str
-    consumes: int
-    produces: int
-    source_location: SourceLocation | None = attrs.field(eq=False)
-    comment: str | None = None
-    """A comment that is always emitted after the op in TEAL"""
-    error_message: str | None = None
-    """Error message to display if program fails at this op"""
-    stack_manipulations: Sequence[StackManipulation] = attrs.field(
-        default=(),
-        converter=tuple[StackManipulation, ...],
-        eq=False,
-    )
-
-    @property
-    def immediates(self) -> Sequence[int | str]:
-        return ()
-
-    def teal(self) -> str:
-        teal_args = [self.op_code, *map(str, self.immediates)]
-        if self.comment or self.error_message:
-            error_message = (
-                format_error_comment(self.op_code, self.error_message)
-                if self.error_message
-                else ""
-            )
-            comment_lines = error_message.splitlines()
-            comment_lines += (self.comment or "").splitlines()
-            comment = "\n//".join(comment_lines)
-            teal_args.append(f"// {comment}")
-        return " ".join(teal_args)
-
-    @property
-    def stack_height_delta(self) -> int:
-        return self.produces - self.consumes
-``` -->
 
 
 

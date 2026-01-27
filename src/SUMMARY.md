@@ -1,10 +1,12 @@
-# Summary
+# Introduction
 
-- [Puya Compiler Specifications](./COVER.md)
+- [Puya Compiler Specifications](./INTRO.md)
 
 ---
 
-# Content
+# The Puya compiler
+
+<!-- TODO: preamble -->
 
 - [The Abstract Wyvern Syntax Tree](./AWST/AWST.md)
 

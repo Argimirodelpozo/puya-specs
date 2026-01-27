@@ -2,7 +2,7 @@
 
 # Type system (WTypes)
 
-## Runtime Representation Kinds (`_ValueType`)
+<!-- ## Runtime Representation Kinds (`_ValueType`)
 
 These describe how a value is physically represented at runtime. The enumeration is:
 - uint64
@@ -231,4 +231,4 @@ arc4.struct { a:uint64, b:bytes[16] }
 Alias	Expands to
 arc4.byte	arc4.uint8
 arc4.string	dynamic array of bytes
-arc4.address	static array of 32 bytes
+arc4.address	static array of 32 bytes -->

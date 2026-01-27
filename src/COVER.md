@@ -1,3 +1,3 @@
 <!-- DRAFT -->
 
-![placeholder cover](./images/cover.png)
+![placeholder cover](./_images/cover.png)

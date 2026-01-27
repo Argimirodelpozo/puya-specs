@@ -36,6 +36,8 @@
 
   - [Validations performed in this layer](./TEAL/validations/TEAL-validations.md)
 
+    - [Unexpected `MIR` nodes during `TEAL` construction](./TEAL/validations/TEAL-unexpected-nodes-during-build.md)
+
     - [Explicit check invariance validation](./TEAL/validations/TEAL-validations-explicit-checks.md)
 
 - [Assembly layer](./assemble/ussemble.md)

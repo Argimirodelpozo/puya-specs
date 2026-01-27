@@ -1,30 +1,25 @@
 <!-- DRAFT -->
 
 # Type system (WTypes)
+<!-- TODO: intro -->
 
-<!-- ## Runtime Representation Kinds (`_ValueType`)
+## Runtime Representation Kinds (`_ValueType`)
 
-These describe how a value is physically represented at runtime. The enumeration is:
-- uint64
-- bytes
-- reference
-- composite
-- none
+These describe how a value is physically represented at runtime. The enumeration of possible types is:
+- `uint64`
+- `bytes`
+- `reference`
+- `composite`
+- `none`
 
-Two of these have a correspondence with AVM types (uint64 and bytes) while the others do not.
-TODO: link to definition
+Two of these have a direct correspondence with representable AVM types (`uint64` and `bytes`) while the others do not.\
+For `reference` types, they semantically constitute a "pointer" to the value.\
+For `composite` types, they may be backed by multiple values, each of them resolving to one of the above runtime representations.\
+Finally, `none` backed types don't have a value behind them, and represent just a type (e.g. `void` types).
 
+<!-- TODO: link to definition -->
 
-
-ValueType	Meaning
-uint64	Value is a single AVM uint64 stack element.
-bytes	Value is a single AVM byte slice.
-reference	Represents a pointer-like reference (arrays, structs, etc.).
-composite	Value consists of multiple underlying runtime values.
-none	No runtime value (e.g., void or static type).
-
-value_type.avm_type controls whether the type maps to AVM int or bytes stack slots.
-
+<!--
 🔹 2. Persistability Semantics (_TypeSemantics)
 
 Describes where the type may live (stack only, ARC-4 / state, composite, reference).

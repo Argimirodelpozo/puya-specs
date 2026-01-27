@@ -88,18 +88,37 @@ the following set of optimizations is performed in the order in which they are p
 ## Subroutine optimizations at instruction level
 These are mostly peephole optimizations performed at the instruction (op.) level. Several passes are realized until a stable program is achieved.
 
-[Link to reference impl.](TODO_LINK)
+[Link to reference implementation](TODO_LINK)
 
 These passes work at the [block level](#teal-block), which means they are run once for each block in the subroutine, replacing and simplifying ops. _inside_ a given block.
 
 After every instruction level optimization pass through a block, a quick [stack height validation](#validations-performed) is performed for each block.
 
-A loop is in place to perform [constant stack shuffling](#), [repeated rotations simplificacion](#), and [peephole optimizations](#peephole-optimizations).\
-The loop works on the same block until a full pass without modifications is observed.
+A loop is in place to perform [constant stack shuffling](#constant-stack-shuffling), [repeated rotations simplificacion](#repeated-rotations-simplification), and [peephole optimizations](#peephole-optimizations), in sequence.\
+The loop works on the same block, tracking modifications through a boolean flag, and will stop once a full pass without modifications is completed.
 
-Also, whenever a list of ops. have to be replaced by a new  optimized list, we have to keep track of the stack manipulations performed by the replaced ops. and append them into the new ops. in place, to guarantee stack effects are preserved.\
-This is carried in the following way:
-<!-- TODO: explain preserve_stack_manipulations() -->
+### A comment on `StackManipulations`
+Whenever a list of ops. (from now on, `_old_`) are to be replaced by a new optimized list (from now on, `_new_`), we have to keep track of the stack manipulations performed by the to-be-replaced ops. in `_old_`. If the new sequence of stack manipulations does not capture the same manipulations as the old stack, the stack manipulations in `_new_` will be erased for every op. and the stack manipulations in `_old_` will be put in place in a single op. of the `_new_` group, choosing said op. and appending or prepending according to the replacement rules explained below, to guarantee stack effects are preserved _on a block level_.
+
+The replacement is carried in the following way:
+
+- Consider a "window" into a list of instructions. This window is a slice of step 1, with a non-negative start and an end greater than its start, where the whole window fits inside said list of instructions (i.e. window end is less than or equal to the length of the ops. list).
+
+- Furthermore, consider the lists `_old_` of ops. already in the block and `_new_` of changes proposed after a given optimization.
+
+If `_new_` is not empty, stack manipulations will be added to the last op. in `_new_`.
+If `_new_` is empty, this means we are attempting a full deletion of the ops. inside the given _window_.
+Then, if there is at least one op. before the start of the _window_ in `_old_`, the stack manipulations will be _appended_ there.
+Finally, if the window starts at the beginning, but there is at least an extra op. after it, `_old_` stack manipulations will be _prepended_ there.
+> [!Note] if the window encompasses the full block, then the block itself should be deleted. This is handled separately somewhere else and should not happen here.
+
+Also, note that stack manipulations are relevant at a full block context, not at an instruction by instruction context, so we can get away with collapsing sequences of stack manipulations into single ops. as long as the effects of the block as a whole are preserved.
+
+For two given sets of stack manipulations, they are deemed equal if:
+- they are equal element to element, or
+- the result of their independant application _starting from an empty stack_ finishes (i.e. does not incur in an out-of-bounds error) and at the end, both stacks (with order) are in the same state, and the sets of definitions performed are equal.\
+Note here that a failure to apply manipulations by going out of bounds means the stacks are deemed unequal even if their application in some non-empty stack could yield the same results.
+<!-- TODO: example of valid window -->
 > [Link to reference implementation](TODO_LINK)
 
 ### Constant stack shuffling
@@ -118,11 +137,11 @@ We then continue iterating and assembling a new sub-stack of loads from where we
 
 <!-- TODO: example -->
 
-
 ### Repeated rotations simplification
 
 
-## Peephole optimizations
+
+### Peephole optimizations
 These are optimizations that replace teal patterns for other, more budget-efficient or bytecode-succint patterns.
 
 There are windows of one, two, three and four opcodes respectively that will be used.
@@ -216,14 +235,30 @@ TODO
 > [!INFO] after the set of [op. level optimizations](#subroutine-op-optimizations) is run, an optional intermediate output may be emitted, with the qualifier _"peephole"_ (e.g. `my_contract.peephole.teal`).
 
 ## Constant `dupn` and `dup2` insertion
-
+> [!NOTE] this pair of optimizations is only run in `O1` and `O2` levels
 
 ## Repeated rotation ops. search
+> [!NOTE] this optimization is only run in the `O2` level
 
 
 ## Swap operations simplification
+> [!NOTE] this optimization is only run in `O1` and `O2` levels
+During traversal of the list of ops. in a block, we specifically look for `Cover` or `Uncover` instructions where the immediate is 1. This pattern is equivalent to a `Swap` operation, which has no immediates. Therefore we can reduce bytecode by replacing the original pattern for a `Swap` (preserving any stack manipulations attached to the original operation).
 
-
+Example:
+```
+uncover 1
++
+push 1
+cover 1
+```
+is replaced by
+```
+swap
++
+push 1
+swap
+```
 
 
 ## Subroutine Block optimizations

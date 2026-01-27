@@ -30,7 +30,7 @@ Pipeline goes optimize program => lower aggregate IR => optimize program => slot
 In order to build a control flow graph and SSA form directly from the AWST, we employ the Braun SSA construction algorithm.\
 It differs from the classical SSA form construction in that it does not need pre-processing, `Phi` nodes are inserted lazily as needed, and by the end of the build pass we have both a control flow graph (with `BasicBlock`s as nodes) and a program in SSA form, both ready to be optimized before the [destructuring pass](#ssa-destructuring).\
 
-In order to do this, we need to keep track of:
+To achieve this, we need to keep track of:
 - the set $sB$ of sealed blocks (basic blocks whose instructions have been visited, that have already been constructed and finished with a terminator).
 - for each variable found, a set to its `Register`s (see below) mapped to the `BasicBlock` in which the variable version was defined. These are all grouped under the variable _Identifier_, which may be modeled as a simple unique string.
 <!-- TODO: explain -->
@@ -101,6 +101,35 @@ def get_transform_pipeline(
 In other words, the pipeline does IR level optimization, aggregate lowering, 
 another full optimization pass (same opts.), then specifically slot elimination,
 and finally destructuring.
+
+
+## Aggregate node lowering
+Consider now an IR [`Program`](#full-models-reference) $P$. An aggregate replacement visitor is instantiated for each subroutine in $P$ (i.e. `main` and member subroutines).\
+The IR nodes visited by this stage are:
+- `BytesEncode` 
+- `DecodeBytes`
+- `ArrayLength`
+- `ExtractValue`
+- `ReplaceValue`
+- `BoxRead`
+- `BoxWrite`
+
+We now delve into the building process for each of these aggregate related primitives.
+### `BytesEncode` aggregate lowering
+### `DecodeBytes` aggregate lowering
+### `ArrayLength` aggregate lowering
+### `ExtractValue` aggregate lowering
+### `ReplaceValue` aggregate lowering
+### `BoxWrite` aggregate lowering
+### `BoxRead` aggregate lowering
+
+At the end of this build subprocess for each `Subroutine`, an in-SSA validation is performed. It checks that a fundamental property of SSA form is preserved; that is, all registers are assigned _once_ in the context of the `Subroutine` under analysis.\
+Afterwards, a pass is performed to call individual validators for each attribute in the `Subroutine`.
+> [Link to reference implementation](LINK_validate_with_ssa in Subroutine(Context), models.py)
+
+
+
+<!-- TODO: commentary on encodings.py -->
 
 
 # Optimizations performed

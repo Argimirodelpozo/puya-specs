@@ -24,6 +24,10 @@
   
     - [Label validation](./AWST/validations/AWST-validations-labels.md)
 
+    - [ABI compliance in function names validation](./AWST/validations/AWST-validations-ABI-method-name.md)
+
+    - [Base subroutine invoker validation](./AWST/validations/AWST-validations-base-invoker.md)
+
   - [Output reading guide](./AWST/output-reading-guide.md)
 
 - [IR](./IR/IR.md)

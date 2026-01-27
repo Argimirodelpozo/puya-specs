@@ -16,6 +16,7 @@ preferred-dark-theme = "dark"
 smart-punctuation = true
 mathjax-support = true
 # additional-js = ["theme-ext/gtm.js", "theme-ext/gtm-noscript.js", "mermaid.min.js", "mermaid-init.js"]
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
 # additional-css = ["theme-ext/theme-override.css"]
 git-repository-url = "https://github.com/Argimirodelpozo/puya-specs"
 # edit-url-template = "https://github.com/algorandfoundation/specs/edit/master/{path}"

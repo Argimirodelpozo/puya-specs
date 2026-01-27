@@ -30,6 +30,9 @@ jobs:
         run: |
           cargo install mdbook-mermaid --locked
 
+      - name: Install mermaid assets into the book dir
+        run: mdbook-mermaid install .
+
       # Build the book (defaults: book.toml, output to ./book unless overridden)
       - name: Build
         run: mdbook build

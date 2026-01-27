@@ -6,15 +6,21 @@
 
 # Content
 
-- [The Abstract Wyvern Syntax Tree](./AWST.md)
+- [The Abstract Wyvern Syntax Tree](./AWST/AWST.md)
 
-- [IR](./IR.md)
+  - [Validations performed](./AWST/validations/AWST-validations.md)
+  
+    - [Label validation](./AWST/validations/AWST-validations-labels.md)
 
-- [MIR](./MIR.md)
+  - [Output reading guide](./AWST/output-reading-guide.md)
 
-- [TEAL](./TEAL.md)
+- [IR](./IR/IR.md)
 
-- [Assembly layer](./ussemble.md)
+- [MIR](./MIR/MIR.md)
+
+- [TEAL](./TEAL/TEAL.md)
+
+- [Assembly layer](./assemble/ussemble.md)
 
 <!-- # Introduction
 

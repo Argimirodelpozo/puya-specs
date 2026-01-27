@@ -1,6 +1,12 @@
+# Summary
+
+- [The Puya compiler engineering specifications](./COVER.md)
+
+---
+
 # Introduction
 
-- [Puya Compiler Specifications](./INTRO.md)
+- [Introduction and reading guidelines](./INTRO.md)
 
 ---
 

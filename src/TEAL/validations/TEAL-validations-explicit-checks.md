@@ -1,3 +1,5 @@
+<!-- DRAFT -->
+
 # _Explicit check_ invariance validation
 After lowering and before running optimization passes, an initial set of explicit checks is collected (see above in the build section). An explicit check is an `Assert` or `Err` TEAL model that has been marked as such from its start in the pipeline because it comes explicitly from the user code, and thus will have an internal flag set to `True` when built.
 The collection algorithm simply tallies the amount of explicit checks by subroutine.\

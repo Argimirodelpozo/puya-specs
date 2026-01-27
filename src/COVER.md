@@ -1,1 +1,3 @@
-PLACEHOLDER COVER
+<!-- DRAFT -->
+
+![placeholder cover](./images/cover.png)

@@ -1,3 +1,5 @@
+<!-- DRAFT -->
+
 # TEAL layer (AVM code or "final" lowering)
 <!-- TODO: intro -->
 The TEAL layer is the code generation stage of the compiler pipeline. The output on this stage is valid [TEAL code](TODO_LINK_SPECS), which may be assembled into deployable bytecode by means of the [ussemble](assemble.md) stage, or by the `algod` assemble remote procedure, and executed in the Algorand Virtual Machine.\

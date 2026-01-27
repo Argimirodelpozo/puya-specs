@@ -1,3 +1,5 @@
+<!-- DRAFT -->
+
 # Optimizations performed
 
 <!-- TODO: DIAGRAMA_O0 -->

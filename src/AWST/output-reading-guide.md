@@ -1,3 +1,5 @@
+<!-- DRAFT -->
+
 # Output reading guide
 
 ## Human readable AWST output

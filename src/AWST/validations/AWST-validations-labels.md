@@ -7,8 +7,8 @@ It checks for label existance (`Goto` nodes can't target inexistant labels) and 
 
 <!-- > [!NOTE] in TEAL, labels must be unique for a single contract file. However, the compiler will inject 'function context' into labels down the pipeline. TODO: improve explanation, is it correct? -->
 
-We traverse the AWST, instantiating independant visitors for both every module level subroutine (`Subroutine` nodes found outside of any classes as module statements) and for every method inside of a contract.\
+We traverse the AWST, instantiating independant visitors for both every module level subroutine (`Subroutine` nodes found outside of any classes as module statements) and for every method inside of a contract.
 
-The function body is visited at the `Block` level, keeping track of labels associated to each block. If they are not unique (i.e. have been seen before in the same function context), an `error` is logged and compilation fails.\
+The function body is visited at the `Block` level, keeping track of labels associated to each block. If they are not unique (i.e. have been seen before in the same function context), an `error` is logged and compilation fails.
 
 Furthermore, the validator visits all `Goto` nodes at the block statement level. If a `Goto` node is found whose target label is not present in any block in the current function, an `error` is logged and compilation fails.

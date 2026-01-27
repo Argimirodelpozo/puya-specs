@@ -1,3 +1,5 @@
+<!-- DRAFT -->
+
 # Memory Intermediate Representation (MIR) layer
 
 Up to this point, all allocations are _abstract_ (see the [relevant nodes in IR](IR.md#full-models-reference)) (not counting allocations explicitly defined by the user TODO: example).

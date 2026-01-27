@@ -44,7 +44,13 @@
 
 - [MIR](./MIR/MIR.md)
 
+  - [Node reference](./MIR/node-reference/MIR-node-reference.md)
+
+  - [Building the MIR representation](./MIR/MIR-building/MIR-building.md)
+
   - [Optimizations and code transformations performed](./MIR/optimizations/optimizations-performed.md)
+
+  - [Validations performed](./MIR/validations/MIR-validations.md)
 
 - [TEAL](./TEAL/TEAL.md)
 

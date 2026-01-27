@@ -1,45 +1,45 @@
-name: CD
+# name: CD
 
-on:
-  push:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+# permissions:
+#   contents: read
+#   pages: write
+#   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
+# concurrency:
+#   group: pages
+#   cancel-in-progress: true
 
-jobs:
-  ci:
-    uses: ./.github/workflows/ci.yaml
-    with:
-      artifact-name: specs-site-master
+# jobs:
+#   ci:
+#     uses: ./.github/workflows/ci.yaml
+#     with:
+#       artifact-name: specs-site-master
 
-  deploy-pages:
-    needs: ci
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Download built site
-        uses: actions/download-artifact@v7
-        with:
-          name: specs-site-master
-          path: book/html
+#   deploy-pages:
+#     needs: ci
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: github-pages
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     steps:
+#       - name: Download built site
+#         uses: actions/download-artifact@v7
+#         with:
+#           name: specs-site-master
+#           path: book/html
 
-      # - name: Configure Pages
-      #   uses: actions/configure-pages@v5
+#       # - name: Configure Pages
+#       #   uses: actions/configure-pages@v5
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: book/html
+#       - name: Upload Pages artifact
+#         uses: actions/upload-pages-artifact@v3
+#         with:
+#           path: book/html
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+#       - name: Deploy to GitHub Pages
+#         id: deployment
+#         uses: actions/deploy-pages@v4

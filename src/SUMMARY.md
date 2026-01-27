@@ -18,6 +18,8 @@
 
   - [Node reference](./AWST/node-reference/node-reference.md)
 
+  - [`WType` and the type system](./AWST/typesystem/wtypes.md)
+
   - [Validations performed](./AWST/validations/AWST-validations.md)
   
     - [Label validation](./AWST/validations/AWST-validations-labels.md)

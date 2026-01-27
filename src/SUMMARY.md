@@ -21,6 +21,16 @@
   - [`WType` and the type system](./AWST/typesystem/wtypes.md)
 
   - [Validations performed](./AWST/validations/AWST-validations.md)
+
+    - [Immutability validation](./AWST/validations/AWST-validations-immutability.md)
+  
+    - [Inner transactions general validation](./AWST/validations/AWST-validations-inner-transactions-general.md)
+
+    - [Inner transactions in a loop validation](./AWST/validations/AWST-validations-inner-transactions-in-loop.md)
+  
+    - [Inner transactions staleness validation](./AWST/validations/AWST-validations-inner-transactions-stale.md)
+
+    - [Storage types validation](./AWST/validations/AWST-validations-storage-types.md)
   
     - [Label validation](./AWST/validations/AWST-validations-labels.md)
 

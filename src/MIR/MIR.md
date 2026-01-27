@@ -21,19 +21,19 @@ TODO: improve explanation of f-stack -->
 The following diagram shows the MIR pipeline schematically.
 ```mermaid
 flowchart TD
-    A[Start] --> B[lower_main_to_mir(IRProgram main)]
+    A[Start] --> B[lower_main_to_mir of IRProgram main]
     B --> C[Iterate IRProgram subroutines]
-    C --> D[lower_subroutine_to_mir(s)]
+    C --> D[lower_subroutine_to_mir s ]
     D --> C
 
     C --> E{slot_allocation_strategy == dynamic?}
     E -- Yes --> F[Add special slot allocation subroutine]
     E -- No --> G[Skip]
 
-    F --> H[Construct MIR.Program(kind, main, subroutines, slot_alloc)]
+    F --> H[Construct MIR.Program kind, main, subroutines, slot_alloc]
     G --> H
 
-    H --> I[Apply globalStackAllocation(result)]
+    H --> I[Apply globalStackAllocation result]
     I --> J[Return result]
 ```
 > Link to reference implementation [here](TODO_LINK).

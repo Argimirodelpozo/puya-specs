@@ -62,7 +62,13 @@
 
 - [TEAL](./TEAL/TEAL.md)
 
+  - [Building the TEAL representation](./TEAL/TEAL-building/TEAL-building.md)
+
   - [Optimizations and code transformations performed](./TEAL/TEAL-optimizations.md)
+
+    - [Optimizations performed at instruction level](./TEAL/optimizations/TEAL-optimizations-op-level/TEAL-optimizations-op-level.md)
+
+    - [Optimizations performed at block level](./TEAL/optimizations/TEAL-optimizations-block-level/TEAL-optimizations-block-level.md)
 
   - [Validations performed in this layer](./TEAL/validations/TEAL-validations.md)
 

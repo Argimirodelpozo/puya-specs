@@ -20,7 +20,15 @@
 
 - [TEAL](./TEAL/TEAL.md)
 
+  - [Optimizations and code transformations performed](./TEAL/TEAL-optimizations.md)
+
 - [Assembly layer](./assemble/ussemble.md)
+
+- [Other structural considerations](./other-structural/misc.md)
+
+  - [Compiler errors](./other-structural/errors.md)
+
+  - [The Puya library](./other-structural/puya-library.md)
 
 <!-- # Introduction
 

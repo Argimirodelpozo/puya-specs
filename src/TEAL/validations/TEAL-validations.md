@@ -1,0 +1,2 @@
+# Validations performed
+In this layer, validations are incorporated and performed after certain key optimizing passes in order to ensure properties like stack consistency, or the survival of checks marked as _explicit_ (assertions introduced explicitly by the user in their code).

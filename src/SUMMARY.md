@@ -22,6 +22,10 @@
 
   - [Optimizations and code transformations performed](./TEAL/TEAL-optimizations.md)
 
+  - [Validations performed in this layer](./TEAL/validations/TEAL-validations.md)
+
+    - [Explicit check invariance validation](./TEAL/validations/TEAL-validations-explicit-checks.md)
+
 - [Assembly layer](./assemble/ussemble.md)
 
 - [Other structural considerations](./other-structural/misc.md)

@@ -30,6 +30,8 @@
 
 - [MIR](./MIR/MIR.md)
 
+  - [Optimizations and code transformations performed](./MIR/optimizations/optimizations-performed.md)
+
 - [TEAL](./TEAL/TEAL.md)
 
   - [Optimizations and code transformations performed](./TEAL/TEAL-optimizations.md)

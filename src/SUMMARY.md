@@ -16,6 +16,8 @@
 
 - [The Abstract Wyvern Syntax Tree](./AWST/AWST.md)
 
+  - [Node reference](./AWST/node-reference/node-reference.md)
+
   - [Validations performed](./AWST/validations/AWST-validations.md)
   
     - [Label validation](./AWST/validations/AWST-validations-labels.md)

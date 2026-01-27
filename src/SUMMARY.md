@@ -42,6 +42,14 @@
 
 - [IR](./IR/IR.md)
 
+  - [Building the IR representation](./IR/IR-building/IR-building.md)
+
+  - [Optimizations performed](./IR/optimizations/IR-optimizations.md)
+
+  - [Validations performed](./IR/validations/IR-validations.md)
+
+    - [Infinite loop detection](./IR/validations/IR-infinite-loop-detection.md)
+
 - [MIR](./MIR/MIR.md)
 
   - [Node reference](./MIR/node-reference/MIR-node-reference.md)

@@ -6,8 +6,8 @@ src = "src"
 language = "en"
 text-direction = "ltr"
 
-# [preprocessor.mermaid]
-# command = "mdbook-mermaid"
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
 
 [output.html]
 theme = "theme"

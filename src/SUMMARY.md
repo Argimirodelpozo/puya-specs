@@ -14,75 +14,75 @@
 
 <!-- TODO: preamble -->
 
-- [The Abstract Wyvern Syntax Tree](./AWST/AWST.md)
+- [The Abstract Wyvern Syntax Tree](./backend/AWST/AWST.md)
 
-  - [Node reference](./AWST/node-reference/node-reference.md)
+  - [Node reference](./backend/AWST/node-reference/node-reference.md)
 
-  - [`WType` and the type system](./AWST/typesystem/wtypes.md)
+  - [`WType` and the type system](./backend/AWST/typesystem/wtypes.md)
 
-  - [Validations performed](./AWST/validations/AWST-validations.md)
+  - [Validations performed](./backend/AWST/validations/AWST-validations.md)
 
-    - [Immutability validation](./AWST/validations/AWST-validations-immutability.md)
+    - [Attempt to modify immutable object validation](./backend/AWST/validations/AWST-validations-immutability.md)
   
-    - [Inner transactions general validation](./AWST/validations/AWST-validations-inner-transactions-general.md)
+    - [Inner transactions general validation](./backend/AWST/validations/AWST-validations-inner-transactions-general.md)
 
-    - [Inner transactions in a loop validation](./AWST/validations/AWST-validations-inner-transactions-in-loop.md)
+    - [Inner transactions in a loop validation](./backend/AWST/validations/AWST-validations-inner-transactions-in-loop.md)
   
-    - [Inner transactions staleness validation](./AWST/validations/AWST-validations-inner-transactions-stale.md)
+    - [Inner transactions staleness validation](./backend/AWST/validations/AWST-validations-inner-transactions-stale.md)
 
-    - [Storage types validation](./AWST/validations/AWST-validations-storage-types.md)
+    - [Storage types validation](./backend/AWST/validations/AWST-validations-storage-types.md)
   
-    - [Label validation](./AWST/validations/AWST-validations-labels.md)
+    - [Label validation](./backend/AWST/validations/AWST-validations-labels.md)
 
-    - [ABI compliance in function names validation](./AWST/validations/AWST-validations-ABI-method-name.md)
+    - [ABI compliance in function names validation](./backend/AWST/validations/AWST-validations-ABI-method-name.md)
 
-    - [Base subroutine invoker validation](./AWST/validations/AWST-validations-base-invoker.md)
+    - [Base subroutine invoker validation](./backend/AWST/validations/AWST-validations-base-invoker.md)
 
-  - [Output reading guide](./AWST/output-reading-guide.md)
+  - [Output reading guide](./backend/AWST/output-reading-guide.md)
 
-- [IR](./IR/IR.md)
+- [IR](./backend/IR/IR.md)
 
-  - [Building the IR representation](./IR/IR-building/IR-building.md)
+  - [Building the IR representation](./backend/IR/IR-building/IR-building.md)
 
-  - [Optimizations performed](./IR/optimizations/IR-optimizations.md)
+  - [Optimizations performed](./backend/IR/optimizations/IR-optimizations.md)
 
-  - [Validations performed](./IR/validations/IR-validations.md)
+  - [Validations performed](./backend/IR/validations/IR-validations.md)
 
-    - [Infinite loop detection](./IR/validations/IR-infinite-loop-detection.md)
+    - [Infinite loop detection](./backend/IR/validations/IR-infinite-loop-detection.md)
 
-- [MIR](./MIR/MIR.md)
+- [MIR](./backend/MIR/MIR.md)
 
-  - [Node reference](./MIR/node-reference/MIR-node-reference.md)
+  - [Node reference](./backend/MIR/node-reference/MIR-node-reference.md)
 
-  - [Building the MIR representation](./MIR/MIR-building/MIR-building.md)
+  - [Building the MIR representation](./backend/MIR/MIR-building/MIR-building.md)
 
-  - [Optimizations and code transformations performed](./MIR/optimizations/optimizations-performed.md)
+  - [Optimizations and code transformations performed](./backend/MIR/optimizations/optimizations-performed.md)
 
-  - [Validations performed](./MIR/validations/MIR-validations.md)
+  - [Validations performed](./backend/MIR/validations/MIR-validations.md)
 
-- [TEAL](./TEAL/TEAL.md)
+- [TEAL](./backend/TEAL/TEAL.md)
 
-  - [Building the TEAL representation](./TEAL/TEAL-building/TEAL-building.md)
+  - [Building the TEAL representation](./backend/TEAL/TEAL-building/TEAL-building.md)
 
-  - [Optimizations and code transformations performed](./TEAL/TEAL-optimizations.md)
+  - [Optimizations and code transformations performed](./backend/TEAL/TEAL-optimizations.md)
 
-    - [Optimizations performed at instruction level](./TEAL/optimizations/TEAL-optimizations-op-level/TEAL-optimizations-op-level.md)
+    - [Optimizations performed at instruction level](./backend/TEAL/optimizations/TEAL-optimizations-op-level/TEAL-optimizations-op-level.md)
 
-    - [Optimizations performed at block level](./TEAL/optimizations/TEAL-optimizations-block-level/TEAL-optimizations-block-level.md)
+    - [Optimizations performed at block level](./backend/TEAL/optimizations/TEAL-optimizations-block-level/TEAL-optimizations-block-level.md)
 
-  - [Validations performed in this layer](./TEAL/validations/TEAL-validations.md)
+  - [Validations performed in this layer](./backend/TEAL/validations/TEAL-validations.md)
 
-    - [Unexpected `MIR` nodes during `TEAL` construction](./TEAL/validations/TEAL-unexpected-nodes-during-build.md)
+    - [Unexpected `MIR` nodes during `TEAL` construction](./backend/TEAL/validations/TEAL-unexpected-nodes-during-build.md)
 
-    - [Explicit check invariance validation](./TEAL/validations/TEAL-validations-explicit-checks.md)
+    - [Explicit check invariance validation](./backend/TEAL/validations/TEAL-validations-explicit-checks.md)
 
-- [Assembly layer](./assemble/ussemble.md)
+- [Assembly layer](./backend/assemble/ussemble.md)
 
-- [Other structural considerations](./other-structural/misc.md)
+- [Other structural considerations](./backend/other-structural/misc.md)
 
-  - [Compiler errors](./other-structural/errors.md)
+  - [Compiler errors](./backend/other-structural/errors.md)
 
-  - [The Puya library](./other-structural/puya-library.md)
+  - [The Puya library](./backend/other-structural/puya-library.md)
 
 <!-- # Introduction
 

@@ -1,4 +1,4 @@
-## ABI method name validation
+# ABI method name validation
 > [!INFO]
 > The regular expression for an ARC4 compliant method names is
 >```regexp
@@ -6,7 +6,7 @@
 >```
 >you may refer to the [ARC4 specification](TODO_LINK) for more details.
 
-We traverse the AWST, looking for `ContractMethod` nodes and `MethodConstant` nodes.\
+We traverse the AWST, looking for `ContractMethod` nodes and `MethodConstant` nodes.
 
 For the first one, if it constitues an ARC4 method, then it must have an `ARC4ABIMethodConfig` node associated.\
 We validate its name against the ARC4 regular expresion.

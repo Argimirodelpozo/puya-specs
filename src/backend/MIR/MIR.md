@@ -40,8 +40,8 @@ flowchart TD
 
 In the [building phase](#ir--mir-lowering), each subroutine in the IR [`Program`](IR.md#full-models-reference) input is lowered, starting with main as a special case.\
 Then each non-main subroutine is built.\
-At the end of the building process, and only in the case of `slot allocation strategy` set to `dynamic`, we build the slot allocation and append a special slot building subroutine at the end of the subroutine list.
+At the end of the building process, and only in the case of a `dynamic slot allocation strategy`, we build the slot allocation and append a special slot building subroutine at the end of the subroutine list.
 
-Finally, the `global stack allocation` algorithm is performed, constructing each stack region according to the required optimization level, and materialising all `AbstractLoad` and `AbstractStore` operations in the process.
+Finally, the [`global stack allocation`](./MIR-building/MIR-building.md#global-stack-allocation) algorithm is performed, constructing each stack region according to the required optimization level, and materialising all `AbstractLoad` and `AbstractStore` operations in the process.
 
 After this, we get the final output ready to continue down the pipeline to the [TEAL](TEAL.md) stage.

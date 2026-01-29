@@ -1,9 +1,16 @@
 # Optimizations performed
+<!-- TODO: intro and main optimizing stages -->
 
-At this level, we define a subroutine as "trivial" if:
+## General constructs and definitions used throughout
+
+### Dominator tree
+A _dominator tree_ is used in ...
+
+
+At this level, we define a `Subroutine` as _trivial_ if:
 - it has a single basic block,
 - it has _at most_ one instruction, and
-- no phi instructions
+- no `Phi` nodes are part of any of its `BasicBlock`s.
 
 ## Subroutine inlining
 > [INFO!] this will only run in optimization level O2. This is because it may tamper with error comment locations.

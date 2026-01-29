@@ -38,9 +38,6 @@ In other words, the target store variable `v` is not live-out for `n'`, which me
 ### Iterative construction of variable lifetime analysis sets
 TODO: explain
 
-## Dead store removal (l-stack case)
-<!-- TODO: isolate when this happens in l-stack construction and describe -->
-
 ## Peephole optimizations
 We define a peephole window of size 2, meaning the peephole optimizer will consider _pairs_ of operations inside each [basic block](#memorybasicblock).
 For all these, we consider a pair of ops. `(a, b)`.\
@@ -80,20 +77,6 @@ Note that, since this optimization is run after each stack region's allocation, 
 Consider now a pair where the last product of `a` is just a local id alias in `b`.
 This is, if `b` is a `MIR.StoreLStack` or a `MIR.LoadLStack` without copy, and the `depth` is 0. In other words, `b` takes the top of the stack and, through a store/load operation, renames it to `b.local_id`.\
 Then, `b` may be safely removed, and the resulting pattern is just `(a, )`.
-
-
-### Dead store removal (x-stack, f-stack cases)
-
-> [!Note] l-stack dead store removal occurs during l-stack allocation. The other two stack region cases are handled here.
-
-```py
-    if vla.is_dead_store(b):
-        return a, mir.Pop(n=1, source_location=b.source_location)
-```
-If `b` constitutes a *dead store* (see [Variable Lifetime Analysis section](#variable-lifetime-analysis) above), then it may be replaced by a `MIR.Pop` operation to pop the top value of the stack, as the last product of `a` is stored but never used again, and can therefore be safely discarded.
-The resulting pattern is then `(a, MIR.Pop(n=1))`.\
-
-TODO: illustrative example
 
 ### Fold `store=>load` chains inside the same region (non-rotational)
 

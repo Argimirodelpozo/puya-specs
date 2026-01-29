@@ -14,6 +14,10 @@
 
 <!-- TODO: preamble -->
 
+- [Puya-ts: Tyepscript frontend for the Puya Compiler](./frontends/puya-ts/puya-ts.md)
+
+  - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
+
 - [The Abstract Wyvern Syntax Tree](./backend/AWST/AWST.md)
 
   - [Node reference](./backend/AWST/node-reference/node-reference.md)
@@ -41,6 +45,8 @@
   - [Output reading guide](./backend/AWST/output-reading-guide.md)
 
 - [IR](./backend/IR/IR.md)
+
+  - [Node reference](./backend/IR/node-reference/IR-node-reference.md)
 
   - [Building the IR representation](./backend/IR/IR-building/IR-building.md)
 

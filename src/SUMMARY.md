@@ -9,14 +9,16 @@
 - [Introduction and reading guidelines](./INTRO.md)
 
 ---
+# Puya-ts: a Typescript frontend for the Puya Compiler
+
+- [Puya-ts: Tyepscript frontend for the Puya Compiler](./frontends/puya-ts/puya-ts.md)
+
+  - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
 
 # The Puya compiler
 
 <!-- TODO: preamble -->
 
-- [Puya-ts: Tyepscript frontend for the Puya Compiler](./frontends/puya-ts/puya-ts.md)
-
-  - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
 
 - [The Abstract Wyvern Syntax Tree](./backend/AWST/AWST.md)
 

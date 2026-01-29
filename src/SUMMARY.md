@@ -15,6 +15,11 @@
 
   - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
 
+  - [PTypes full reference](./frontends/typesystem/ptypes.md)
+
+  - [The type registry](./frontends/typesystem/type-registry.md)
+
+---
 # The Puya compiler
 
 <!-- TODO: preamble -->

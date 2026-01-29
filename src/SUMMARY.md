@@ -9,9 +9,9 @@
 - [Introduction and reading guidelines](./INTRO.md)
 
 ---
-# Puya-ts: a Typescript frontend for the Puya Compiler
+# Puya-ts: Typescript frontend for Puya
 
-- [Puya-ts: Tyepscript frontend for the Puya Compiler](./frontends/puya-ts/puya-ts.md)
+- [Puya-ts: a Tyepscript frontend for the Puya Compiler](./frontends/puya-ts/puya-ts.md)
 
   - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
 
@@ -20,10 +20,14 @@
   - [The type registry](./frontends/typesystem/type-registry.md)
 
 ---
+# PuyaPy: python frontend for Puya
+
+<!-- TODO: sections -->
+
+---
 # The Puya compiler
 
 <!-- TODO: preamble -->
-
 
 - [The Abstract Wyvern Syntax Tree](./backend/AWST/AWST.md)
 

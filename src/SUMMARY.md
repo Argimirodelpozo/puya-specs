@@ -67,6 +67,8 @@
 
     - [Infinite loop detection](./backend/IR/validations/IR-infinite-loop-detection.md)
 
+  - [IR output reading guide](./backend/IR/output-reading-guide.md)
+
 - [MIR](./backend/MIR/MIR.md)
 
   - [Node reference](./backend/MIR/node-reference/MIR-node-reference.md)

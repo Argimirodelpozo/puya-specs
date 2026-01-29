@@ -24,7 +24,7 @@ Pipeline goes optimize program => lower aggregate IR => optimize program => slot
 <!-- TODO: link to reference impl. BraunSSA -->
 <!-- TODO: cite with footnotes -->
 In order to build a control flow graph and SSA form directly from the AWST, we employ the Braun SSA construction algorithm.\
-It differs from the classical SSA form construction in that it does not need pre-processing, `Phi` nodes are inserted lazily as needed, and by the end of the build pass we have both a control flow graph (with `BasicBlock`s as nodes) and a program in SSA form, both ready to be optimized before the [destructuring pass](#ssa-destructuring).\
+It differs from the classical SSA form construction in that it does not need pre-processing, `Phi` nodes are inserted lazily as needed, and by the end of the build pass we have both a control flow graph (with `BasicBlock`s as nodes) and a program in SSA form, both ready to be optimized before the [destructuring pass](#ssa-destructuring).
 
 To achieve this, we need to keep track of:
 - the set $sB$ of sealed blocks (basic blocks whose instructions have been visited, that have already been constructed and finished with a terminator).

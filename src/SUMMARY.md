@@ -21,6 +21,8 @@
 
       - [AWST internal representation](./frontends/puya-ts/awst-representation/awst.md)
 
+      - [WTypes internal representation](./frontends/puya-ts/awst-representation/wtypes-representation.md)
+
     - [AWST post-building validations](./frontends/puya-ts/awst-representation/validations/puya-ts-specific-awst-validations.md)
 
       - [ARC4 approval calls router AWST validation](./frontends/puya-ts/awst-representation/validations/arc4-approval-calls-router-validation.md)

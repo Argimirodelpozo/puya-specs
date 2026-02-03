@@ -16,7 +16,3 @@ This also constitutes the final output of the IR stage, and the input state for 
 ## Main difference between `.ssa`/`.ssa.opt` and `array`
 
 ## Main difference between `.ssa`/`.array` (and their `.opt` versions) and `.destructured`
-
-## Full textual representation
-<!-- The following full textual representation is taken from  -->
-<!-- TODO: should we move these to the full node reference? -->

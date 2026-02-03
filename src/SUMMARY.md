@@ -13,11 +13,29 @@
 
 - [Puya-ts: a Tyepscript frontend for the Puya Compiler](./frontends/puya-ts/puya-ts.md)
 
-  - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
+  - [Main compilation pipeline](./frontends/puya-ts/compilation/compilation-main.md)
 
-  - [PTypes full reference](./frontends/typesystem/ptypes.md)
+    - [Creation of a Typescript program](./frontends/puya-ts/compilation/ts-program-creation/ast-extraction.md)
 
-  - [The type registry](./frontends/typesystem/type-registry.md)
+    - [Building an AWST from a Typescript Program](./frontends/puya-ts/compilation/awst-build-main.md)
+
+      - [AWST internal representation](./frontends/puya-ts/awst-representation/awst.md)
+
+    - [AWST post-building validations](./frontends/puya-ts/awst-representation/validations/puya-ts-specific-awst-validations.md)
+
+      - [ARC4 approval calls router AWST validation](./frontends/puya-ts/awst-representation/validations/arc4-approval-calls-router-validation.md)
+
+    - [Puya (backend) compilation](./frontends/puya-ts/compilation/Puya-compilation-call.md)
+
+      - [Puya release binary acquisition](./frontends/puya-ts/other-structural/binary-downloader.md)
+
+  - [The typesystem in puya-ts](./frontends/puya-ts/typesystem/typesystem.md)
+    
+    - [PTypes full reference](./frontends/typesystem/ptypes.md)
+
+    - [The type registry](./frontends/typesystem/type-registry.md)
+
+    - [The type resolver](./frontends/puya-ts/typesystem/type-resolver.md)
 
 ---
 # PuyaPy: python frontend for Puya

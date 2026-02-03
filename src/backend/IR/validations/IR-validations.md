@@ -8,6 +8,9 @@ Basic SSA validation. For each basic block in the subroutine, we collect all ass
 
 If at any point we find a repeat, that means a basic SSA property is broken (a register is assigned twice) and therefore an `InternalError` is raised as the IR is in an invalid state.
 
+This validation is performed in:
+<!-- TODO: list of optimizations that incorporate SSA validation goes here -->
+
 
 ## After [destructuring](#ssa-destructuring)
 <!-- TODO: all validators here (from IR/validate) -->
